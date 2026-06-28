@@ -32,7 +32,7 @@ function AnimatedSphere() {
   return (
     <Sphere ref={meshRef} args={[1.4, 100, 100]}>
       <MeshDistortMaterial
-        color="#7C3AED"
+        color="#A78BFA"
         attach="material"
         distort={0.45}
         speed={2.5}
@@ -134,7 +134,7 @@ export function Hero() {
                 initial={{ y: "110%" }}
                 animate={{ y: 0 }}
                 transition={{ duration: 0.9, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                className="text-gradient"
+                className="text-white"
               >
                 win clients.
               </motion.div>
