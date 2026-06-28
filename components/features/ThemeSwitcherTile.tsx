@@ -16,7 +16,7 @@ export function ThemeSwitcherTile() {
   return (
     <div className="h-full flex flex-col items-center justify-center gap-4">
       <div className="text-xs font-medium text-purple-400 uppercase tracking-widest">Theme Switcher</div>
-      <div className="flex rounded-xl border border-white/10 p-1 gap-1 bg-background/50">
+      <div className="flex rounded-xl border border-border p-1 gap-1 bg-background/50">
         {themes.map(({ value, label, icon: Icon }) => (
           <button
             key={value}

@@ -174,7 +174,7 @@ export function Hero() {
             </Link>
             <Link
               href="/contact"
-              className="group inline-flex items-center gap-2 px-8 py-4 rounded-full border border-white/15 hover:border-purple-500/50 hover:bg-purple-500/10 font-semibold text-base transition-all duration-300 hover:-translate-y-0.5"
+              className="group inline-flex items-center gap-2 px-8 py-4 rounded-full border border-foreground/15 hover:border-purple-500/50 hover:bg-purple-500/10 font-semibold text-base transition-all duration-300 hover:-translate-y-0.5"
             >
               Book a Call
               <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform opacity-60" />
@@ -183,7 +183,7 @@ export function Hero() {
 
           {/* Stats */}
           <motion.div
-            className="flex flex-wrap gap-8 mt-16 pt-16 border-t border-white/10"
+            className="flex flex-wrap gap-8 mt-16 pt-16 border-t border-foreground/10"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 1.8 }}

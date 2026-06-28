@@ -61,7 +61,7 @@ function BackToTopButton() {
   return (
     <motion.button
       onClick={scrollToTop}
-      className="w-12 h-12 rounded-full border border-white/15 flex items-center justify-center hover:border-purple-500/50 hover:bg-purple-500/10 transition-all duration-300 group"
+      className="w-12 h-12 rounded-full border border-foreground/15 flex items-center justify-center hover:border-purple-500/50 hover:bg-purple-500/10 transition-all duration-300 group"
       whileHover={{ y: -4 }}
       whileTap={{ scale: 0.9 }}
     >
@@ -83,7 +83,7 @@ export function Footer() {
   };
 
   return (
-    <footer className="border-t border-white/5 bg-card/50 pt-20 pb-10">
+    <footer className="border-t border-border bg-card/50 pt-20 pb-10">
       <div className="max-w-7xl mx-auto px-6">
         {/* Big wordmark */}
         <div className="overflow-hidden mb-16">
@@ -105,7 +105,7 @@ export function Footer() {
             <Link href="/" className="inline-block mb-4 group">
               <Logo
                 iconSize={28}
-                className="text-white group-hover:text-purple-300 transition-colors duration-200"
+                className="text-foreground group-hover:text-purple-500 transition-colors duration-200"
                 textClassName="text-lg"
               />
             </Link>
@@ -162,7 +162,7 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-white/5">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-border">
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} Egan Labs. All rights reserved.
           </p>
@@ -173,7 +173,7 @@ export function Footer() {
                 key={label}
                 href={href}
                 aria-label={label}
-                className="w-9 h-9 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all"
+                className="w-9 h-9 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-all"
               >
                 <Icon size={15} />
               </a>

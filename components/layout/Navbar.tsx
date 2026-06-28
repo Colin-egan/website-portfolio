@@ -31,7 +31,7 @@ export function Navbar() {
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
           scrolled
-            ? "py-3 bg-background/80 backdrop-blur-xl border-b border-white/5"
+            ? "py-3 bg-background/80 backdrop-blur-xl border-b border-border"
             : "py-6"
         )}
         initial={{ y: -100, opacity: 0 }}
@@ -43,7 +43,7 @@ export function Navbar() {
           <Link href="/" className="group">
             <Logo
               iconSize={28}
-              className="text-white group-hover:text-purple-300 transition-colors duration-200"
+              className="text-foreground group-hover:text-purple-500 transition-colors duration-200"
               textClassName="text-lg"
             />
           </Link>
@@ -74,7 +74,7 @@ export function Navbar() {
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden p-2 rounded-lg hover:bg-white/5 transition-colors"
+            className="md:hidden p-2 rounded-lg hover:bg-foreground/5 transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
           >

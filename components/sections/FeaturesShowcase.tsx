@@ -12,6 +12,7 @@ import { ThemeSwitcherTile } from "@/components/features/ThemeSwitcherTile";
 import { ParallaxReveal } from "@/components/features/ParallaxReveal";
 import { SVGPathDraw } from "@/components/features/SVGPathDraw";
 import { CustomCursorTile } from "@/components/features/CustomCursorTile";
+import { CustomCursorTile2 } from "@/components/features/CustomCursorTile2";
 import { LottieTile } from "@/components/features/LottieTile";
 import { ScrollStoryTile } from "@/components/features/ScrollStoryTile";
 import { TestimonialCarouselTile } from "@/components/features/TestimonialCarouselTile";
@@ -93,6 +94,9 @@ export function FeaturesShowcase() {
         </Tile>
         <Tile className="md:col-span-1 row-span-1" delay={0.15}>
           <CustomCursorTile />
+        </Tile>
+        <Tile className="md:col-span-1 row-span-1" delay={0.18}>
+          <CustomCursorTile2 />
         </Tile>
 
         {/* Row 3 */}
