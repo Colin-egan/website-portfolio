@@ -74,10 +74,10 @@ function WorkCard({ study, index }: WorkCardProps) {
         {/* Below-card meta */}
         <div className="mt-4 flex items-start justify-between">
           <div>
-            <h3 className="font-display font-semibold text-base group-hover:text-purple-300 transition-colors">
+            <h3 className="font-display font-semibold text-lg group-hover:text-purple-300 transition-colors">
               {study.title}
             </h3>
-            <div className="text-muted-foreground text-sm mt-0.5">{study.category} · {study.year}</div>
+            <div className="text-muted-foreground text-sm mt-1">{study.category} · {study.year}</div>
           </div>
           <ArrowUpRight
             size={18}
@@ -107,7 +107,7 @@ export function Work() {
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
         <div className="max-w-xl">
           <motion.div
-            className="text-xs font-semibold text-purple-400 mb-4 flex items-center gap-2 tracking-[0.18em] uppercase"
+            className="text-sm font-semibold text-purple-400 mb-4 flex items-center gap-2 tracking-[0.12em] uppercase"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}

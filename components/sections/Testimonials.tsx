@@ -93,18 +93,20 @@ export function Testimonials() {
             className="text-center"
           >
             <Quote size={48} className="text-purple-500/40 mx-auto mb-8" />
-            <blockquote className="text-2xl md:text-3xl font-display font-medium leading-relaxed mb-10 max-w-3xl mx-auto">
+            <blockquote className="text-xl md:text-2xl font-display font-normal leading-relaxed mb-10 max-w-3xl mx-auto">
               "{t.quote}"
             </blockquote>
-            <div className="flex items-center justify-center gap-4">
-              <div className="w-14 h-14 rounded-full bg-purple-600 flex items-center justify-center font-bold text-white text-lg">
-                {t.avatar}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-full bg-purple-600 flex items-center justify-center font-bold text-white text-lg flex-shrink-0">
+                  {t.avatar}
+                </div>
+                <div className="text-left">
+                  <div className="font-bold">{t.author}</div>
+                  <div className="text-sm text-muted-foreground">{t.role}, {t.company}</div>
+                </div>
               </div>
-              <div className="text-left">
-                <div className="font-bold">{t.author}</div>
-                <div className="text-sm text-muted-foreground">{t.role}, {t.company}</div>
-              </div>
-              <div className="ml-4 px-4 py-2 rounded-full bg-purple-500/15 border border-purple-500/25 text-purple-300 text-sm font-medium">
+              <div className="px-4 py-2 rounded-full bg-purple-500/15 border border-purple-500/25 text-purple-300 text-sm font-medium">
                 {t.metric}
               </div>
             </div>

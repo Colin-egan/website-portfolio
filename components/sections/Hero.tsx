@@ -75,7 +75,6 @@ function FloatingOrbs() {
 }
 
 const words = ["Build websites", "that", "win clients."];
-const subWords = "AI tools managed by human intelligence.".split(" ");
 
 export function Hero() {
   return (
@@ -114,7 +113,7 @@ export function Hero() {
           </motion.div>
 
           {/* Headline — word by word reveal */}
-          <h1 className="font-display font-black text-6xl sm:text-7xl md:text-8xl xl:text-9xl leading-[0.9] tracking-tight mb-8 overflow-hidden">
+          <h1 className="font-display font-black text-4xl sm:text-6xl md:text-8xl xl:text-9xl leading-[0.9] tracking-tight mb-8 overflow-hidden">
             {["Build websites", "that"].map((line, lineIdx) => (
               <div key={lineIdx} className="overflow-hidden">
                 <motion.div
@@ -143,19 +142,14 @@ export function Hero() {
           </h1>
 
           {/* Subheadline */}
-          <div className="flex flex-wrap gap-1.5 mb-12 max-w-xl">
-            {subWords.map((word, i) => (
-              <motion.span
-                key={i}
-                className="text-lg md:text-xl text-muted-foreground"
-                initial={{ opacity: 0, filter: "blur(8px)" }}
-                animate={{ opacity: 1, filter: "blur(0px)" }}
-                transition={{ duration: 0.5, delay: 0.9 + i * 0.04 }}
-              >
-                {word}
-              </motion.span>
-            ))}
-          </div>
+          <motion.p
+            className="text-xl md:text-2xl text-muted-foreground leading-relaxed mb-12 max-w-xl"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
+          >
+            AI tools managed by human intelligence.
+          </motion.p>
 
           {/* CTAs */}
           <motion.div
@@ -166,14 +160,14 @@ export function Hero() {
           >
             <Link
               href="/pricing"
-              className="group inline-flex items-center gap-2 px-8 py-4 rounded-full bg-purple-600 hover:bg-purple-500 text-white font-semibold text-base transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/30 hover:-translate-y-0.5"
+              className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-purple-600 hover:bg-purple-500 text-white font-semibold text-base transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/30 hover:-translate-y-0.5 w-full sm:w-auto"
             >
               View Pricing
               <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
               href="/contact"
-              className="group inline-flex items-center gap-2 px-8 py-4 rounded-full border border-foreground/15 hover:border-purple-500/50 hover:bg-purple-500/10 font-semibold text-base transition-all duration-300 hover:-translate-y-0.5"
+              className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full border border-foreground/15 hover:border-purple-500/50 hover:bg-purple-500/10 font-semibold text-base transition-all duration-300 hover:-translate-y-0.5 w-full sm:w-auto"
             >
               Book a Call
               <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform opacity-60" />
@@ -195,14 +189,14 @@ export function Hero() {
             ].map((stat) => (
               <div key={stat.label}>
                 <div
-                  className="text-3xl font-display font-bold"
+                  className="text-4xl font-display font-bold"
                   style={stat.teal
                     ? { color: "oklch(0.75 0.15 195)" }
                     : undefined}
                 >
                   {stat.teal ? stat.value : <span className="text-gradient">{stat.value}</span>}
                 </div>
-                <div className="text-sm text-muted-foreground mt-0.5">{stat.label}</div>
+                <div className="text-base text-muted-foreground mt-1">{stat.label}</div>
               </div>
             ))}
           </motion.div>

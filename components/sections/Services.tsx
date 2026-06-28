@@ -100,12 +100,14 @@ function TiltCard({ service, index }: TiltCardProps) {
 
           <div className="text-xs font-medium text-purple-400 mb-2">{service.price}</div>
           <h3 className="text-2xl font-display font-bold mb-3">{service.title}</h3>
-          <p className="text-muted-foreground text-sm leading-relaxed mb-6">{service.description}</p>
+          <p className="text-muted-foreground text-base leading-relaxed mb-6">{service.description}</p>
 
-          <ul className="space-y-2 mb-8">
+          <ul className="space-y-2.5 mb-8">
             {service.features.map((feat) => (
-              <li key={feat} className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span className="w-1 h-1 rounded-full bg-purple-400 flex-shrink-0" />
+              <li key={feat} className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="flex-shrink-0 text-purple-400" aria-hidden>
+                  <path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
                 {feat}
               </li>
             ))}
@@ -130,7 +132,7 @@ export function Services() {
       {/* Header */}
       <div className="max-w-2xl mb-16">
         <motion.div
-          className="text-sm font-medium text-purple-400 mb-4 flex items-center gap-2"
+          className="text-sm font-semibold text-purple-400 mb-4 flex items-center gap-2 tracking-[0.12em] uppercase"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}

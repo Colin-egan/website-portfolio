@@ -50,7 +50,7 @@ export function Process() {
         {/* Header */}
         <div className="max-w-2xl mb-20">
           <motion.div
-            className="text-xs font-semibold text-purple-400 mb-4 flex items-center gap-2 tracking-[0.18em] uppercase"
+            className="text-sm font-semibold text-purple-400 mb-4 flex items-center gap-2 tracking-[0.12em] uppercase"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -94,9 +94,9 @@ export function Process() {
                 </div>
 
                 <div className="pt-2 md:pt-0">
-                  <div className="text-xs text-purple-400 font-medium mb-2 tracking-wide">{step.duration}</div>
-                  <h3 className="font-display font-bold text-xl mb-3">{step.title}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{step.description}</p>
+                  <div className="text-sm text-purple-400 font-medium mb-2 tracking-wide">{step.duration}</div>
+                  <h3 className="font-display font-bold text-2xl mb-3">{step.title}</h3>
+                  <p className="text-muted-foreground text-sm leading-loose">{step.description}</p>
                 </div>
               </motion.div>
             ))}
