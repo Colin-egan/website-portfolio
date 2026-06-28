@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Logo } from "@/components/ui/Logo";
 
 const navLinks = [
   { label: "Services", href: "/#services" },
@@ -39,21 +40,12 @@ export function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-8 h-8">
-              {/* Play-button-like logo mark */}
-              <svg viewBox="0 0 32 32" fill="none" className="w-8 h-8">
-                <path
-                  d="M6 4 L26 16 L6 28 Z"
-                  fill="white"
-                  className="group-hover:fill-purple-400 transition-colors"
-                />
-                <rect x="10" y="12" width="6" height="6" fill="oklch(0.08 0.01 264)" className="group-hover:fill-purple-900 transition-colors" />
-              </svg>
-            </div>
-            <span className="font-display font-bold text-lg tracking-tight">
-              Egan Labs
-            </span>
+          <Link href="/" className="group">
+            <Logo
+              iconSize={28}
+              className="text-white group-hover:text-purple-300 transition-colors duration-200"
+              textClassName="text-lg"
+            />
           </Link>
 
           {/* Desktop Nav */}

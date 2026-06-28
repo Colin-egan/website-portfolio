@@ -4,6 +4,7 @@ import { Services } from "@/components/sections/Services";
 import { FeaturesShowcase } from "@/components/sections/FeaturesShowcase";
 import { Process } from "@/components/sections/Process";
 import { Work } from "@/components/sections/Work";
+import { Team } from "@/components/sections/Team";
 import { Testimonials } from "@/components/sections/Testimonials";
 import { Pricing } from "@/components/sections/Pricing";
 import { Contact } from "@/components/sections/Contact";
@@ -18,6 +19,7 @@ export default function HomePage() {
       <FeaturesShowcase />
       <Process />
       <Work />
+      <Team />
       <Testimonials />
       <Pricing />
       <Contact />

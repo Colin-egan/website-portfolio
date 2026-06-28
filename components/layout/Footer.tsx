@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUp, Mail } from "lucide-react";
 import { useState } from "react";
+import { Logo } from "@/components/ui/Logo";
 
 function GitHubIcon({ size = 15 }: { size?: number }) {
   return (
@@ -101,14 +102,12 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-16">
           {/* Brand */}
           <div className="col-span-2">
-            <Link href="/" className="flex items-center gap-3 mb-4 group">
-              <div className="relative w-8 h-8">
-                <svg viewBox="0 0 32 32" fill="none" className="w-8 h-8">
-                  <path d="M6 4 L26 16 L6 28 Z" fill="white" className="group-hover:fill-purple-400 transition-colors" />
-                  <rect x="10" y="12" width="6" height="6" fill="oklch(0.08 0.01 264)" />
-                </svg>
-              </div>
-              <span className="font-display font-bold text-lg">Egan Labs</span>
+            <Link href="/" className="inline-block mb-4 group">
+              <Logo
+                iconSize={28}
+                className="text-white group-hover:text-purple-300 transition-colors duration-200"
+                textClassName="text-lg"
+              />
             </Link>
             <p className="text-muted-foreground text-sm mb-6 max-w-xs leading-relaxed">
               AI tools managed by human intelligence. We build websites that win clients — and automations that scale businesses.
