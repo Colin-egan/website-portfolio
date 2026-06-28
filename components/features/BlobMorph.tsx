@@ -11,7 +11,7 @@ const blobs = [
 export function BlobMorph() {
   return (
     <div className="h-full flex flex-col items-center justify-center gap-3">
-      <div className="text-xs font-medium text-purple-400 uppercase tracking-widest">SVG Blob Morph</div>
+      <div className="text-xs font-medium text-sky-400 uppercase tracking-widest">SVG Blob Morph</div>
       <div className="relative w-40 h-40 flex items-center justify-center">
         <motion.svg
           viewBox="-100 -100 200 200"
@@ -19,8 +19,9 @@ export function BlobMorph() {
         >
           <defs>
             <linearGradient id="blobGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#7C3AED" />
-              <stop offset="100%" stopColor="#A78BFA" />
+              <stop offset="0%" stopColor="#BAE6FD" />
+              <stop offset="50%" stopColor="#38BDF8" />
+              <stop offset="100%" stopColor="#7DD3FC" />
             </linearGradient>
           </defs>
           <motion.path
