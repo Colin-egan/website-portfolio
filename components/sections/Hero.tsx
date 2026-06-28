@@ -11,7 +11,7 @@ import { ArrowRight, Sparkles } from "lucide-react";
 function AnimatedSphere() {
   const meshRef = useRef<THREE.Mesh>(null);
   const { mouse, viewport } = useThree();
-  const texture = useTexture("/CH.jpeg");
+  const texture = useTexture("/Code.png");
 
   useFrame((state) => {
     if (!meshRef.current) return;
