@@ -25,7 +25,7 @@ function WorkCard({ study, index }: WorkCardProps) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <Link href={`/work/${study.slug}`} className="block">
+      <Link href={study.url} target="_blank" rel="noopener noreferrer" className="block">
         <div className="relative overflow-hidden rounded-2xl aspect-[4/3]">
           {/* Real photo */}
           <Image
@@ -62,7 +62,7 @@ function WorkCard({ study, index }: WorkCardProps) {
           >
             <div className="text-center px-6">
               <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-purple-900 font-semibold text-sm mb-4">
-                View Case Study <ArrowUpRight size={14} />
+                View Project <ArrowUpRight size={14} />
               </div>
               <p className="text-white/80 text-sm leading-relaxed max-w-[220px] mx-auto">
                 {study.description.slice(0, 85)}…
