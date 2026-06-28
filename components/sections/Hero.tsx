@@ -4,43 +4,53 @@ import { useRef, Suspense } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { MeshDistortMaterial, Sphere, Environment } from "@react-three/drei";
+import { MeshDistortMaterial, Sphere, Environment, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { ArrowRight, Sparkles } from "lucide-react";
 
 function AnimatedSphere() {
-  const meshRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
   const { mouse, viewport } = useThree();
+  const innerTexture = useTexture("/CH.jpeg");
+
   useFrame((state) => {
-    if (!meshRef.current) return;
+    if (!groupRef.current) return;
     const time = state.clock.elapsedTime;
-    meshRef.current.rotation.x = time * 0.2;
-    meshRef.current.rotation.y = time * 0.3;
-    // Subtle mouse tracking
-    meshRef.current.position.x = THREE.MathUtils.lerp(
-      meshRef.current.position.x,
+    groupRef.current.rotation.x = time * 0.2;
+    groupRef.current.rotation.y = time * 0.3;
+    groupRef.current.position.x = THREE.MathUtils.lerp(
+      groupRef.current.position.x,
       (mouse.x * viewport.width) / 4,
       0.05
     );
-    meshRef.current.position.y = THREE.MathUtils.lerp(
-      meshRef.current.position.y,
+    groupRef.current.position.y = THREE.MathUtils.lerp(
+      groupRef.current.position.y,
       (mouse.y * viewport.height) / 4,
       0.05
     );
   });
 
   return (
-    <Sphere ref={meshRef} args={[1.4, 100, 100]}>
-      <MeshDistortMaterial
-        color="#7C3AED"
-        attach="material"
-        distort={0.45}
-        speed={2.5}
-        roughness={0}
-        metalness={0.8}
-        envMapIntensity={1.2}
-      />
-    </Sphere>
+    <group ref={groupRef}>
+      {/* Inner sphere with CH.jpeg image */}
+      <Sphere args={[1.2, 100, 100]}>
+        <meshStandardMaterial map={innerTexture} side={THREE.BackSide} />
+      </Sphere>
+      {/* Outer sphere — original purple distorted material, semi-transparent */}
+      <Sphere args={[1.4, 100, 100]}>
+        <MeshDistortMaterial
+          color="#7C3AED"
+          attach="material"
+          distort={0.45}
+          speed={2.5}
+          roughness={0}
+          metalness={0.8}
+          envMapIntensity={1.2}
+          transparent
+          opacity={0.72}
+        />
+      </Sphere>
+    </group>
   );
 }
 
