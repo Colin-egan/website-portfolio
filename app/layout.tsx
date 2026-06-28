@@ -3,7 +3,9 @@ import { Inter, Inter_Tight } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { LenisProvider } from "@/components/providers/LenisProvider";
-import { CustomCursor } from "@/components/ui/CustomCursor";
+import { ActiveCursor } from "@/components/ui/ActiveCursor";
+import { CursorSwitcher } from "@/components/ui/CursorSwitcher";
+import { CursorProvider } from "@/components/providers/CursorProvider";
 import { Navbar } from "@/components/layout/Navbar";
 
 const inter = Inter({
@@ -77,9 +79,12 @@ export default function RootLayout({
           disableTransitionOnChange={false}
         >
           <LenisProvider>
-            <CustomCursor />
-            <Navbar />
-            <main>{children}</main>
+            <CursorProvider>
+              <ActiveCursor />
+              <CursorSwitcher />
+              <Navbar />
+              <main>{children}</main>
+            </CursorProvider>
           </LenisProvider>
         </ThemeProvider>
       </body>
