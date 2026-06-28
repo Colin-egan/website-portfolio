@@ -4,13 +4,14 @@ import { useRef, Suspense } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { MeshDistortMaterial, Sphere, Environment } from "@react-three/drei";
+import { MeshDistortMaterial, Sphere, Environment, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { ArrowRight, Sparkles } from "lucide-react";
 
 function AnimatedSphere() {
   const meshRef = useRef<THREE.Mesh>(null);
   const { mouse, viewport } = useThree();
+  const texture = useTexture("/CH.jpeg");
 
   useFrame((state) => {
     if (!meshRef.current) return;
@@ -33,13 +34,13 @@ function AnimatedSphere() {
   return (
     <Sphere ref={meshRef} args={[1.4, 100, 100]}>
       <MeshDistortMaterial
-        color="#7C3AED"
+        map={texture}
         attach="material"
         distort={0.45}
         speed={2.5}
-        roughness={0}
-        metalness={0.8}
-        envMapIntensity={1.2}
+        roughness={0.3}
+        metalness={0.2}
+        envMapIntensity={0.8}
       />
     </Sphere>
   );
