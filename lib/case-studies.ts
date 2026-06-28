@@ -22,7 +22,7 @@ export const caseStudies: CaseStudy[] = [
     tags: ["Next.js", "Tailwind", "Framer Motion"],
     color: "#7C3AED",
     image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80",
-    url: "https://vercel.com/colin7/missionproperties",
+    url: "https://missionproperties.vercel.app/",
   },
   {
     slug: "city-well",
