@@ -94,7 +94,7 @@ export function Hero() {
             <pointLight position={[5, -5, -5]} intensity={0.5} color="#A78BFA" />
             <AnimatedSphere />
             <FloatingOrbs />
-            <Environment files="/CH.jpg" />
+            <Environment files="/CH.jpeg" />
           </Suspense>
         </Canvas>
       </div>
