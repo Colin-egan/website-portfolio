@@ -18,28 +18,25 @@ export function BlobMorph() {
           className="w-full h-full"
         >
           <defs>
-            <clipPath id="blobClip">
-              <motion.path
-                animate={{ d: blobs }}
-                transition={{
-                  duration: 8,
-                  repeat: Infinity,
-                  repeatType: "loop",
-                  ease: "easeInOut",
-                }}
-              />
-            </clipPath>
+            <linearGradient id="blobGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#7C3AED" />
+              <stop offset="100%" stopColor="#A78BFA" />
+            </linearGradient>
           </defs>
-          <image
-            href="/CH.jpeg"
-            x="-100"
-            y="-100"
-            width="200"
-            height="200"
-            preserveAspectRatio="xMidYMid slice"
-            clipPath="url(#blobClip)"
+          <motion.path
+            fill="url(#blobGrad)"
+            animate={{ d: blobs }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              repeatType: "loop",
+              ease: "easeInOut",
+            }}
           />
         </motion.svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-white text-xs font-bold">LIVE</span>
+        </div>
       </div>
       <p className="text-xs text-muted-foreground">Continuous path interpolation</p>
     </div>
