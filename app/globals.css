@@ -89,6 +89,11 @@
   --teal-light: oklch(0.87 0.10 195);
 }
 
+.light .navbar-scrolled {
+  background: oklch(0.88 0.07 293 / 80%) !important;
+  border-color: oklch(0.72 0.12 293 / 30%) !important;
+}
+
 .light {
   --background: oklch(0.98 0 0);
   --foreground: oklch(0.08 0.01 264);
