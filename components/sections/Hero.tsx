@@ -10,7 +10,8 @@ import { ArrowRight, Sparkles } from "lucide-react";
 
 function AnimatedSphere() {
   const meshRef = useRef<THREE.Mesh>(null);
-  const { mouse, viewport } = useThree();
+  const { mouse, viewport, size } = useThree();
+  const mobileScale = size.width < 640 ? 0.55 : 1;
   useFrame((state) => {
     if (!meshRef.current) return;
     const time = state.clock.elapsedTime;
@@ -30,7 +31,7 @@ function AnimatedSphere() {
   });
 
   return (
-    <Sphere ref={meshRef} args={[1.4, 100, 100]}>
+    <Sphere ref={meshRef} args={[1.4, 100, 100]} scale={mobileScale}>
       <MeshDistortMaterial
         color="#A78BFA"
         attach="material"
@@ -81,7 +82,6 @@ export function Hero() {
     <section className="relative min-h-screen flex items-start sm:items-center overflow-hidden gradient-mesh noise">
       {/* 3D Canvas */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="w-full h-full scale-[0.55] sm:scale-100 origin-top-right">
         <Canvas
           camera={{ position: [0, 0, 5], fov: 45 }}
           style={{ background: "transparent" }}
@@ -97,7 +97,6 @@ export function Hero() {
             <Environment files="/CH.jpeg" />
           </Suspense>
         </Canvas>
-        </div>
       </div>
 
       {/* Content */}
