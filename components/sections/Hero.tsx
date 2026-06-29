@@ -78,9 +78,10 @@ const words = ["Build websites", "that", "win clients."];
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden gradient-mesh noise">
+    <section className="relative min-h-screen flex items-start sm:items-center overflow-hidden gradient-mesh noise">
       {/* 3D Canvas */}
       <div className="absolute inset-0 pointer-events-none">
+        <div className="w-full h-full scale-[0.55] sm:scale-100 origin-top-right">
         <Canvas
           camera={{ position: [0, 0, 5], fov: 45 }}
           style={{ background: "transparent" }}
@@ -96,10 +97,11 @@ export function Hero() {
             <Environment files="/CH.jpeg" />
           </Suspense>
         </Canvas>
+        </div>
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-32 pb-24 w-full">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-20 sm:pt-32 pb-24 w-full">
         <div className="max-w-4xl">
           {/* Badge */}
           <motion.div
