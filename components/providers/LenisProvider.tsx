@@ -14,7 +14,14 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
     if (typeof history !== "undefined") {
       history.scrollRestoration = "manual";
     }
-    window.scrollTo(0, 0);
+
+    const resetScroll = () => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+
+    resetScroll();
 
     const lenis = new Lenis({
       duration: 1.2,
@@ -23,7 +30,23 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
     });
 
     lenisRef.current = lenis;
-    lenis.scrollTo(0, { immediate: true });
+
+    // Double RAF ensures we run after the browser's own scroll restoration on mobile
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        resetScroll();
+        lenis.scrollTo(0, { immediate: true });
+      });
+    });
+
+    // Handle bfcache navigation (back/forward) on mobile
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) {
+        resetScroll();
+        lenis.scrollTo(0, { immediate: true });
+      }
+    };
+    window.addEventListener("pageshow", onPageShow);
 
     // Sync Lenis with GSAP ticker for ScrollTrigger
     gsap.ticker.add((time) => {
@@ -34,6 +57,7 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
     lenis.on("scroll", ScrollTrigger.update);
 
     return () => {
+      window.removeEventListener("pageshow", onPageShow);
       gsap.ticker.remove((time) => lenis.raf(time * 1000));
       lenis.destroy();
     };
