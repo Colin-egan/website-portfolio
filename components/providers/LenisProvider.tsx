@@ -16,6 +16,8 @@ export function LenisProvider({ children }: { children: React.ReactNode }) {
     }
 
     const resetScroll = () => {
+      document.documentElement.style.scrollBehavior = "auto";
+      document.body.style.scrollBehavior = "auto";
       window.scrollTo(0, 0);
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;

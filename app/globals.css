@@ -124,7 +124,7 @@
     overflow-x: hidden;
   }
   html {
-    @apply scroll-smooth;
+    scroll-behavior: auto;
     overflow-x: hidden;
   }
   ::selection {
