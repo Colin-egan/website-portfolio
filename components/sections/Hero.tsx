@@ -1,12 +1,50 @@
 "use client";
 
-import { useRef, Suspense } from "react";
+import { useRef, Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { MeshDistortMaterial, Sphere, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { ArrowRight, Sparkles } from "lucide-react";
+
+function AnimatedStat({ end, suffix, label, teal }: { end: number; suffix: string; label: string; teal: boolean }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true });
+
+  useEffect(() => {
+    if (!inView) return;
+    const duration = 1800;
+    const steps = 60;
+    const increment = end / steps;
+    let current = 0;
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= end) {
+        setCount(end);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(current));
+      }
+    }, duration / steps);
+    return () => clearInterval(timer);
+  }, [inView, end]);
+
+  const display = `${count}${suffix}`;
+
+  return (
+    <div ref={ref}>
+      <div
+        className="text-4xl font-display font-bold"
+        style={teal ? { color: "oklch(0.75 0.15 195)" } : undefined}
+      >
+        {teal ? display : <span className="text-gradient">{display}</span>}
+      </div>
+      <div className="text-base text-muted-foreground mt-1">{label}</div>
+    </div>
+  );
+}
 
 function AnimatedSphere() {
   const meshRef = useRef<THREE.Mesh>(null);
@@ -183,22 +221,12 @@ export function Hero() {
             transition={{ duration: 0.8, delay: 1.8 }}
           >
             {[
-              { value: "50+", label: "Projects Delivered", teal: false },
-              { value: "98%", label: "Client Satisfaction", teal: true },
-              { value: "3×", label: "Avg. Revenue Increase", teal: false },
-              { value: "48h", label: "First Draft", teal: true },
+              { end: 50, suffix: "+", label: "Projects Delivered", teal: false },
+              { end: 98, suffix: "%", label: "Client Satisfaction", teal: true },
+              { end: 3, suffix: "×", label: "Avg. Revenue Increase", teal: false },
+              { end: 48, suffix: "h", label: "First Draft", teal: true },
             ].map((stat) => (
-              <div key={stat.label}>
-                <div
-                  className="text-4xl font-display font-bold"
-                  style={stat.teal
-                    ? { color: "oklch(0.75 0.15 195)" }
-                    : undefined}
-                >
-                  {stat.teal ? stat.value : <span className="text-gradient">{stat.value}</span>}
-                </div>
-                <div className="text-base text-muted-foreground mt-1">{stat.label}</div>
-              </div>
+              <AnimatedStat key={stat.label} {...stat} />
             ))}
           </motion.div>
         </div>

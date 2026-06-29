@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type MouseEvent } from "react";
+import { useRef, useState, type MouseEvent, type TouchEvent } from "react";
 
 export function ImageComparison() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -18,6 +18,11 @@ export function ImageComparison() {
     if (dragging) updatePosition(e.clientX);
   };
 
+  const handleTouchMove = (e: TouchEvent) => {
+    e.preventDefault();
+    updatePosition(e.touches[0].clientX);
+  };
+
   return (
     <div className="h-full flex flex-col gap-3">
       <div className="text-xs font-medium text-purple-400 uppercase tracking-widest">Before / After Slider</div>
@@ -28,6 +33,9 @@ export function ImageComparison() {
         onMouseDown={() => setDragging(true)}
         onMouseUp={() => setDragging(false)}
         onMouseLeave={() => setDragging(false)}
+        onTouchStart={() => setDragging(true)}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={() => setDragging(false)}
       >
         {/* "After" — right */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-violet-800 to-indigo-900 flex items-center justify-center">

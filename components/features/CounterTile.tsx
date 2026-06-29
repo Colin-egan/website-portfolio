@@ -9,6 +9,10 @@ interface CounterProps {
   label: string;
 }
 
+function easeOut(t: number) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
 function Counter({ end, suffix = "", label }: CounterProps) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
@@ -17,19 +21,22 @@ function Counter({ end, suffix = "", label }: CounterProps) {
   useEffect(() => {
     if (!inView) return;
     const duration = 2000;
-    const steps = 60;
-    const increment = end / steps;
-    let current = 0;
-    const timer = setInterval(() => {
-      current += increment;
-      if (current >= end) {
-        setCount(end);
-        clearInterval(timer);
+    const startTime = performance.now();
+    let raf: number;
+
+    function tick(now: number) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      setCount(Math.floor(easeOut(progress) * end));
+      if (progress < 1) {
+        raf = requestAnimationFrame(tick);
       } else {
-        setCount(Math.floor(current));
+        setCount(end);
       }
-    }, duration / steps);
-    return () => clearInterval(timer);
+    }
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [inView, end]);
 
   return (
