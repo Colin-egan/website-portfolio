@@ -2,39 +2,42 @@
 
 import { useRef, Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { MeshDistortMaterial, Sphere, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { ArrowRight, Sparkles } from "lucide-react";
 
-function AnimatedStat({ end, suffix, label, teal }: { end: number; suffix: string; label: string; teal: boolean }) {
+function AnimatedStat({ end, suffix, label, teal, startDelay = 0 }: { end: number; suffix: string; label: string; teal: boolean; startDelay?: number }) {
   const [count, setCount] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true });
 
   useEffect(() => {
-    if (!inView) return;
-    const duration = 1800;
-    const steps = 60;
-    const increment = end / steps;
-    let current = 0;
-    const timer = setInterval(() => {
-      current += increment;
-      if (current >= end) {
-        setCount(end);
-        clearInterval(timer);
-      } else {
-        setCount(Math.floor(current));
-      }
-    }, duration / steps);
-    return () => clearInterval(timer);
-  }, [inView, end]);
+    let timer: ReturnType<typeof setInterval>;
+    const timeout = setTimeout(() => {
+      const duration = 1800;
+      const steps = 60;
+      const increment = end / steps;
+      let current = 0;
+      timer = setInterval(() => {
+        current += increment;
+        if (current >= end) {
+          setCount(end);
+          clearInterval(timer);
+        } else {
+          setCount(Math.floor(current));
+        }
+      }, duration / steps);
+    }, startDelay);
+    return () => {
+      clearTimeout(timeout);
+      clearInterval(timer);
+    };
+  }, [end, startDelay]);
 
   const display = `${count}${suffix}`;
 
   return (
-    <div ref={ref}>
+    <div>
       <div
         className="text-4xl font-display font-bold"
         style={teal ? { color: "oklch(0.75 0.15 195)" } : undefined}
@@ -226,7 +229,7 @@ export function Hero() {
               { end: 3, suffix: "×", label: "Avg. Revenue Increase", teal: false },
               { end: 48, suffix: "h", label: "First Draft", teal: true },
             ].map((stat) => (
-              <AnimatedStat key={stat.label} {...stat} />
+              <AnimatedStat key={stat.label} {...stat} startDelay={1800} />
             ))}
           </motion.div>
         </div>
