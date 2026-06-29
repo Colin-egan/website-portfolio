@@ -42,7 +42,7 @@ export function Navbar() {
           {/* Logo */}
           <Link href="/" className="group">
             <Logo
-              iconSize={28}
+              iconSize={36}
               className="text-foreground group-hover:text-purple-500 transition-colors duration-200"
               textClassName="text-lg"
             />

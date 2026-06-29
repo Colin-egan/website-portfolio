@@ -176,7 +176,7 @@ export function Hero() {
                 initial={{ y: "110%" }}
                 animate={{ y: 0 }}
                 transition={{ duration: 0.9, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                className="text-white"
+                className="text-black dark:text-white"
               >
                 win clients.
               </motion.div>
