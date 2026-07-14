@@ -13,6 +13,7 @@ const navLinks = [
   { label: "Pricing", href: "/pricing" },
   { label: "About", href: "/#process" },
   { label: "Contact", href: "/contact" },
+  { label: "Client Portal", href: "/portal" },
 ];
 
 export function Navbar() {
