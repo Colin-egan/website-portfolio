@@ -8,20 +8,24 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PortalDashboard } from "@/components/portal/PortalDashboard";
 import { ProjectsPanel } from "@/components/portal/ProjectsPanel";
+import { TeamPanel } from "@/components/portal/TeamPanel";
 import type { Project } from "@/lib/portal/projectActions";
+import type { TeamMember } from "@/lib/portal/teamActions";
 
 type FileEntry = { name: string; size: number; updatedAt: string | null };
 
-const tabs = ["Files", "Projects"] as const;
+const tabs = ["Files", "Projects", "Team"] as const;
 type Tab = (typeof tabs)[number];
 
 export function PortalTabs({
   files,
   projects,
+  team,
   publishEnabled,
 }: {
   files: FileEntry[];
   projects: Project[];
+  team: TeamMember[];
   publishEnabled: boolean;
 }) {
   const [tab, setTab] = useState<Tab>("Files");
@@ -63,8 +67,10 @@ export function PortalTabs({
 
         {tab === "Files" ? (
           <PortalDashboard files={files} />
-        ) : (
+        ) : tab === "Projects" ? (
           <ProjectsPanel projects={projects} publishEnabled={publishEnabled} />
+        ) : (
+          <TeamPanel members={team} />
         )}
       </motion.div>
     </section>

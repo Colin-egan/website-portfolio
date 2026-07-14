@@ -26,8 +26,10 @@ build time.
 |---|---|
 | `clients` | `id`, `domain` (login), `password_hash`, `name`, `deploy_hook_url` |
 | `projects` | Per-client content rows. `status` is `'current'` or `'completed'` — flipping it moves the project between the two sections of the client's site. |
+| `team_members` | Per-client team bios (`name`, `title`, `photo`, `bio[]`, `education[]`, `personal`, `sort_order`). Added for Mission Properties as the first example of a second content shape — see note below. |
 | `client-files` bucket | **Private.** Arbitrary file drop (Files tab). Served via signed URLs. |
 | `project-media` bucket | **Public.** Project photos — must be publicly readable so they render on the client's live site. |
+| `team-media` bucket | **Public.** Team headshots, one per `team_members` row. |
 
 ---
 
@@ -175,3 +177,9 @@ No git, no involvement from you.
 - Every part of this is generic — nothing is special-cased to Mission Properties. A second
   site with a different content shape would need its own table (or extra columns), but the
   auth, storage, and publish plumbing all carry over as-is.
+- The `team_members` table/tab is the first example of this: a content shape (bios + a single
+  headshot per row) that doesn't fit the `projects` table, so it got its own table, its own
+  public storage bucket (`team-media`), its own server actions
+  ([lib/portal/teamActions.ts](lib/portal/teamActions.ts)), and its own panel
+  ([components/portal/TeamPanel.tsx](components/portal/TeamPanel.tsx)) — copy this pattern for
+  the next new content shape rather than copying `projects`.

@@ -3,6 +3,7 @@ import { Footer } from "@/components/layout/Footer";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSession } from "@/lib/portal/session";
 import { listProjects, canPublish } from "@/lib/portal/projectActions";
+import { listTeamMembers } from "@/lib/portal/teamActions";
 import { PortalLogin } from "@/components/portal/PortalLogin";
 import { PortalTabs } from "@/components/portal/PortalTabs";
 
@@ -18,6 +19,7 @@ export default async function PortalPage() {
 
   let files: { name: string; size: number; updatedAt: string | null }[] = [];
   let projects: Awaited<ReturnType<typeof listProjects>> = [];
+  let team: Awaited<ReturnType<typeof listTeamMembers>> = [];
   let publishEnabled = false;
 
   if (session) {
@@ -33,6 +35,7 @@ export default async function PortalPage() {
     }));
 
     projects = await listProjects();
+    team = await listTeamMembers();
     publishEnabled = await canPublish();
   }
 
@@ -40,7 +43,7 @@ export default async function PortalPage() {
     <>
       <div className="pt-28" />
       {session ? (
-        <PortalTabs files={files} projects={projects} publishEnabled={publishEnabled} />
+        <PortalTabs files={files} projects={projects} team={team} publishEnabled={publishEnabled} />
       ) : (
         <PortalLogin />
       )}
