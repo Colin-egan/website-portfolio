@@ -18,9 +18,11 @@ type Tab = (typeof tabs)[number];
 export function PortalTabs({
   files,
   projects,
+  publishEnabled,
 }: {
   files: FileEntry[];
   projects: Project[];
+  publishEnabled: boolean;
 }) {
   const [tab, setTab] = useState<Tab>("Files");
 
@@ -62,7 +64,7 @@ export function PortalTabs({
         {tab === "Files" ? (
           <PortalDashboard files={files} />
         ) : (
-          <ProjectsPanel projects={projects} />
+          <ProjectsPanel projects={projects} publishEnabled={publishEnabled} />
         )}
       </motion.div>
     </section>

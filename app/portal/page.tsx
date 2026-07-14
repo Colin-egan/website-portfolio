@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Footer } from "@/components/layout/Footer";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSession } from "@/lib/portal/session";
-import { listProjects } from "@/lib/portal/projectActions";
+import { listProjects, canPublish } from "@/lib/portal/projectActions";
 import { PortalLogin } from "@/components/portal/PortalLogin";
 import { PortalTabs } from "@/components/portal/PortalTabs";
 
@@ -18,6 +18,7 @@ export default async function PortalPage() {
 
   let files: { name: string; size: number; updatedAt: string | null }[] = [];
   let projects: Awaited<ReturnType<typeof listProjects>> = [];
+  let publishEnabled = false;
 
   if (session) {
     const supabase = getSupabaseAdmin();
@@ -32,12 +33,17 @@ export default async function PortalPage() {
     }));
 
     projects = await listProjects();
+    publishEnabled = await canPublish();
   }
 
   return (
     <>
       <div className="pt-28" />
-      {session ? <PortalTabs files={files} projects={projects} /> : <PortalLogin />}
+      {session ? (
+        <PortalTabs files={files} projects={projects} publishEnabled={publishEnabled} />
+      ) : (
+        <PortalLogin />
+      )}
       <Footer />
     </>
   );

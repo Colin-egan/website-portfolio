@@ -56,6 +56,49 @@ export async function listProjects(): Promise<Project[]> {
   return (data ?? []) as Project[];
 }
 
+export async function canPublish(): Promise<boolean> {
+  const session = await getSession();
+  if (!session) return false;
+
+  const supabase = getSupabaseAdmin();
+  const { data } = await supabase
+    .from("clients")
+    .select("deploy_hook_url")
+    .eq("id", session.clientId)
+    .maybeSingle();
+
+  return Boolean(data?.deploy_hook_url);
+}
+
+export type PublishState = { error: string | null; success: boolean };
+
+export async function publishAction(
+  _prevState: PublishState
+): Promise<PublishState> {
+  const session = await getSession();
+  if (!session) return { error: "Not authenticated.", success: false };
+
+  const supabase = getSupabaseAdmin();
+  const { data: client } = await supabase
+    .from("clients")
+    .select("deploy_hook_url")
+    .eq("id", session.clientId)
+    .maybeSingle();
+
+  if (!client?.deploy_hook_url) {
+    return { error: "Publishing isn't set up for this account yet.", success: false };
+  }
+
+  try {
+    const res = await fetch(client.deploy_hook_url, { method: "POST" });
+    if (!res.ok) return { error: "Failed to trigger publish. Please try again.", success: false };
+  } catch {
+    return { error: "Failed to trigger publish. Please try again.", success: false };
+  }
+
+  return { error: null, success: true };
+}
+
 export type ProjectFormState = { error: string | null };
 
 export async function upsertProjectAction(
