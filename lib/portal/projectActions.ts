@@ -257,6 +257,20 @@ export async function uploadProjectImageAction(
   return { error: null };
 }
 
+export async function setHeroImageAction(projectId: string, imageUrl: string) {
+  const session = await getSession();
+  if (!session) throw new Error("Not authenticated.");
+
+  const supabase = getSupabaseAdmin();
+  await supabase
+    .from("projects")
+    .update({ hero_image: imageUrl, updated_at: new Date().toISOString() })
+    .eq("id", projectId)
+    .eq("client_id", session.clientId);
+
+  revalidatePath("/portal");
+}
+
 export async function removeProjectImageAction(projectId: string, imageUrl: string) {
   const session = await getSession();
   if (!session) throw new Error("Not authenticated.");

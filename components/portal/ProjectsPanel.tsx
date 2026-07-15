@@ -1,13 +1,14 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Plus, Trash2, ImagePlus, ChevronDown, ChevronUp, Building2, UploadCloud } from "lucide-react";
+import { Plus, Trash2, ImagePlus, ChevronDown, ChevronUp, Building2, UploadCloud, Star } from "lucide-react";
 import {
   upsertProjectAction,
   deleteProjectAction,
   setProjectStatusAction,
   uploadProjectImageAction,
   removeProjectImageAction,
+  setHeroImageAction,
   publishAction,
   type Project,
   type ProjectFormState,
@@ -172,26 +173,57 @@ function ProjectRow({
 
           <div>
             <h4 className="text-sm font-medium mb-3">Images</h4>
+            <p className="text-xs text-muted-foreground mb-3">
+              The key image is used as the project&apos;s thumbnail and cover photo.
+            </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-              {project.images.map((url) => (
-                <div key={url} className="relative group">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={url}
-                    alt=""
-                    className="w-full aspect-square object-cover rounded-lg"
-                  />
-                  <form action={removeProjectImageAction.bind(null, project.id, url)}>
-                    <button
-                      type="submit"
-                      className="absolute top-1 right-1 size-6 rounded-full bg-background/90 flex items-center justify-center text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                      aria-label="Remove image"
-                    >
-                      <Trash2 size={12} />
-                    </button>
-                  </form>
-                </div>
-              ))}
+              {project.images.map((url) => {
+                const isHero = url === project.hero_image;
+                return (
+                  <div
+                    key={url}
+                    className={`relative group rounded-lg ${
+                      isHero ? "ring-2 ring-purple-600 ring-offset-2 ring-offset-background" : ""
+                    }`}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={url}
+                      alt=""
+                      className="w-full aspect-square object-cover rounded-lg"
+                    />
+                    {isHero && (
+                      <span className="absolute top-1 left-1 flex items-center gap-1 rounded-full bg-purple-600 px-2 py-0.5 text-[10px] font-medium text-white">
+                        <Star size={10} fill="currentColor" />
+                        Key image
+                      </span>
+                    )}
+                    <div className="absolute top-1 right-1 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {!isHero && (
+                        <form action={setHeroImageAction.bind(null, project.id, url)}>
+                          <button
+                            type="submit"
+                            className="size-6 rounded-full bg-background/90 flex items-center justify-center text-purple-600"
+                            aria-label="Set as key image"
+                            title="Set as key image"
+                          >
+                            <Star size={12} />
+                          </button>
+                        </form>
+                      )}
+                      <form action={removeProjectImageAction.bind(null, project.id, url)}>
+                        <button
+                          type="submit"
+                          className="size-6 rounded-full bg-background/90 flex items-center justify-center text-destructive"
+                          aria-label="Remove image"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
             <form action={uploadFormAction} className="flex flex-col sm:flex-row gap-3">
               <input type="hidden" name="projectId" value={project.id} />
