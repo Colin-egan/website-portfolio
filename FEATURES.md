@@ -1,6 +1,6 @@
-# Egan Labs — Premium Feature List
+# Egan Lab — Premium Feature List
 
-Every feature below is **live and working** on the Egan Labs website. Use this document in sales conversations to demonstrate exactly what we can build into your project.
+Every feature below is **live and working** on the Egan Lab website. Use this document in sales conversations to demonstrate exactly what we can build into your project.
 
 ---
 

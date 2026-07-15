@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://eganlabs.com/sitemap.xml",
+    sitemap: "https://eganlab.com/sitemap.xml",
   };
 }

@@ -1,8 +1,8 @@
-# Egan Labs — Premium Web Design & Automation
+# Egan Lab — Premium Web Design & Automation
 
 > AI tools managed by human intelligence.
 
-A production-ready marketing website for [Egan Labs](https://eganlabs.com) that functions as a live portfolio — every section demonstrates a feature we can build into client projects.
+A production-ready marketing website for [Egan Lab](https://eganlab.com) that functions as a live portfolio — every section demonstrates a feature we can build into client projects.
 
 ## Tech Stack
 

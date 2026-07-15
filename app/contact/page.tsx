@@ -4,7 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
   title: "Contact",
-  description: "Start your project with Egan Labs. Free strategy call, response within 24 hours.",
+  description: "Start your project with Egan Lab. Free strategy call, response within 24 hours.",
 };
 
 export default function ContactPage() {

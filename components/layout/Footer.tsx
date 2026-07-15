@@ -94,7 +94,7 @@ export function Footer() {
             viewport={{ once: true }}
             transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
           >
-            EGAN LABS
+            EGAN LAB
           </motion.h2>
         </div>
 
@@ -164,7 +164,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-border">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Egan Labs. All rights reserved.
+            © {new Date().getFullYear()} Egan Lab. All rights reserved.
           </p>
 
           <div className="flex items-center gap-1">

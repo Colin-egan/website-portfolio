@@ -6,7 +6,7 @@ import { Quote } from "lucide-react";
 
 const testimonials = [
   {
-    quote: "Working with Egan Labs was the best investment I made for my business this year. Colin delivered a site in 8 days that would've taken an agency 3 months and 10× the budget. Our conversion rate doubled in the first week.",
+    quote: "Working with Egan Lab was the best investment I made for my business this year. Colin delivered a site in 8 days that would've taken an agency 3 months and 10× the budget. Our conversion rate doubled in the first week.",
     author: "Sarah Kim",
     role: "Founder & CEO",
     company: "LuxeBoutique",
@@ -22,7 +22,7 @@ const testimonials = [
     metric: "20hrs/week saved",
   },
   {
-    quote: "Our old site was embarrassing us in client meetings. Egan Labs gave us something we're genuinely proud to show. Three clients mentioned our site in their first email to us — that never happened before.",
+    quote: "Our old site was embarrassing us in client meetings. Egan Lab gave us something we're genuinely proud to show. Three clients mentioned our site in their first email to us — that never happened before.",
     author: "Priya Ramanathan",
     role: "Managing Partner",
     company: "Studio Veld",

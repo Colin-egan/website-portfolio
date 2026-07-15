@@ -66,7 +66,7 @@ export function Team() {
                 </span>
               </div>
               <p className="text-muted-foreground text-lg leading-relaxed mb-8">
-                I founded Egan Labs in 2026 and immediately fell in love with the intersection of
+                I founded Egan Lab in 2026 and immediately fell in love with the intersection of
                 web design, AI agent creation, and automation. What started as a curiosity became a
                 mission: build beautiful, intelligent digital products that actually move the needle
                 for the people behind them.

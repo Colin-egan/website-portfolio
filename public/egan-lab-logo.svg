@@ -6,10 +6,10 @@
       <rect x="0" y="0" width="8" height="8" fill="white"/>
       <rect x="8" y="8" width="8" height="8" fill="white"/>
     </pattern>
-    <!-- Mask: fully visible everywhere except Labs region (checkerboard) -->
+    <!-- Mask: fully visible everywhere except Lab region (checkerboard) -->
     <mask id="labsGlitch">
       <rect width="800" height="220" fill="white"/>
-      <rect x="438" y="0" width="362" height="220" fill="url(#checker)"/>
+      <rect x="438" y="0" width="290" height="220" fill="url(#checker)"/>
     </mask>
   </defs>
 
@@ -24,7 +24,7 @@
        M 55 88 L 55 124 L 91 124 L 91 88 Z"
   />
 
-  <!-- "Egan Labs" — Labs has the checkerboard glitch mask -->
+  <!-- "Egan Lab" — Lab has the checkerboard glitch mask -->
   <text
     x="180"
     y="155"
@@ -34,5 +34,5 @@
     letter-spacing="-2"
     fill="white"
     mask="url(#labsGlitch)"
-  >Egan Labs</text>
+  >Egan Lab</text>
 </svg>
