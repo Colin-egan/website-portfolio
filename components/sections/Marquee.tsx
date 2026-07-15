@@ -19,7 +19,7 @@ function MarqueeTrack({ items, reverse = false }: { items: string[]; reverse?: b
       <div
         className="flex gap-8 whitespace-nowrap"
         style={{
-          animation: `${reverse ? "marquee-reverse" : "marquee"} 35s linear infinite`,
+          animation: `${reverse ? "marquee-reverse" : "marquee"} 70s linear infinite`,
         }}
       >
         {doubled.map((item, i) => (
