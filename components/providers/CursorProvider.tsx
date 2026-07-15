@@ -2,7 +2,9 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 
-type CursorVariant = "ring" | "reticle";
+type CursorVariant = "default" | "ring" | "reticle";
+
+const VARIANTS: CursorVariant[] = ["default", "ring", "reticle"];
 
 interface CursorContextValue {
   variant: CursorVariant;
@@ -13,19 +15,26 @@ interface CursorContextValue {
 const CursorContext = createContext<CursorContextValue | null>(null);
 
 export function CursorProvider({ children }: { children: React.ReactNode }) {
-  const [variant, setVariantState] = useState<CursorVariant>("ring");
+  const [variant, setVariantState] = useState<CursorVariant>("default");
 
   useEffect(() => {
     const saved = localStorage.getItem("cursor-variant") as CursorVariant | null;
-    if (saved === "ring" || saved === "reticle") setVariantState(saved);
+    if (saved && VARIANTS.includes(saved)) setVariantState(saved);
   }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle("custom-cursor-active", variant !== "default");
+  }, [variant]);
 
   const setVariant = (v: CursorVariant) => {
     setVariantState(v);
     localStorage.setItem("cursor-variant", v);
   };
 
-  const toggle = () => setVariant(variant === "ring" ? "reticle" : "ring");
+  const toggle = () => {
+    const next = VARIANTS[(VARIANTS.indexOf(variant) + 1) % VARIANTS.length];
+    setVariant(next);
+  };
 
   return (
     <CursorContext.Provider value={{ variant, setVariant, toggle }}>

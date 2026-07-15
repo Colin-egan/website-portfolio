@@ -21,8 +21,10 @@ export function CursorSwitcher() {
       <span className="relative flex items-center justify-center w-5 h-5 shrink-0">
         {variant === "ring" ? (
           <RingPreview />
-        ) : (
+        ) : variant === "reticle" ? (
           <ReticlePreview />
+        ) : (
+          <DefaultPreview />
         )}
       </span>
 
@@ -34,12 +36,26 @@ export function CursorSwitcher() {
           exit={{ opacity: 0, y: -4 }}
           transition={{ duration: 0.15 }}
         >
-          {variant === "ring" ? "RING" : "RETICLE"}
+          {variant === "ring" ? "RING" : variant === "reticle" ? "RETICLE" : "DEFAULT"}
         </motion.span>
       </AnimatePresence>
 
       <span className="text-[10px] opacity-40">↕</span>
     </motion.button>
+  );
+}
+
+function DefaultPreview() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <path
+        d="M4 2.5L4 16.5L8 12.8L10.3 17.6L12.4 16.6L10.1 11.8L15 11.7L4 2.5Z"
+        fill="currentColor"
+        stroke="currentColor"
+        strokeWidth="0.5"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 
