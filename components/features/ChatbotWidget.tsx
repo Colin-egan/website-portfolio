@@ -6,7 +6,7 @@ import { Send, Bot } from "lucide-react";
 
 const responses: Record<string, string> = {
   default: "That's a great question! I'd be happy to connect you with the Egan Labs team. Would you like to book a free consultation?",
-  pricing: "We offer three packages: Website Build ($650 one-time), Monthly Management ($45/mo), and Automation ($300 one-time). Which sounds like a fit?",
+  pricing: "We offer three packages: Website Build (starting at $800 one-time), Monthly Management ($30/mo, includes client portal access), and Automation ($450 one-time, includes client portal setup and remote data storage on Supabase). Which sounds like a fit?",
   hello: "Hey! 👋 I'm the Egan Labs assistant. I can help with pricing, timelines, or booking a call. What do you need?",
   hi: "Hey! 👋 I'm the Egan Labs assistant. I can help with pricing, timelines, or booking a call. What do you need?",
   timeline: "Most websites ship within 7–14 days. First draft is usually ready in 48 hours. We move fast!",

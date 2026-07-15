@@ -13,8 +13,8 @@ import {
 const plans = [
   {
     name: "Website Build",
-    price: "$650",
-    period: "one-time",
+    price: "$800",
+    period: "starting at",
     description: "A fully custom, production-ready website that converts visitors into customers.",
     features: [
       "Custom design (no templates)",
@@ -32,11 +32,12 @@ const plans = [
   },
   {
     name: "Ongoing Management",
-    price: "$45",
+    price: "$30",
     period: "/month",
     description: "We handle everything so you can focus on running your business.",
     features: [
       "Hosting oversight",
+      "Client portal access",
       "Content updates (up to 4/mo)",
       "Security monitoring",
       "Performance checks",
@@ -52,11 +53,13 @@ const plans = [
   },
   {
     name: "Automation Package",
-    price: "$300",
+    price: "$450",
     period: "one-time",
     description: "Stop doing repetitive work manually. Let AI and automation handle it.",
     features: [
       "Workflow automation (Zapier/Make/n8n)",
+      "Client portal setup",
+      "Remote data storage on Supabase",
       "Form-to-CRM integration",
       "Email sequence setup",
       "Booking system integration",

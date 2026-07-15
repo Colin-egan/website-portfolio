@@ -9,7 +9,7 @@ const services = [
   {
     icon: Palette,
     title: "Web Design",
-    price: "From $650",
+    price: "From $800",
     description:
       "Award-worthy designs that convert visitors into customers. Every pixel is intentional — from micro-interactions to full brand systems.",
     features: ["Custom UI/UX design", "Mobile-first responsive", "Design system creation", "Figma prototypes", "Animation direction"],
@@ -19,7 +19,7 @@ const services = [
   {
     icon: Code2,
     title: "Web Development",
-    price: "From $650",
+    price: "From $800",
     description:
       "Production-ready Next.js sites with performance scores that make clients brag. Built to scale, designed to last.",
     features: ["Next.js / React builds", "Headless CMS integration", "E-commerce (Shopify)", "API development", "Lighthouse 95+"],
@@ -29,7 +29,7 @@ const services = [
   {
     icon: Zap,
     title: "Automation",
-    price: "From $300",
+    price: "From $450",
     description:
       "Eliminate repetitive work with smart automations. From lead routing to AI-powered email sequences — we connect your entire stack.",
     features: ["Zapier / Make / n8n", "CRM integration", "Email sequences", "Booking systems", "AI workflow design"],
