@@ -25,7 +25,7 @@ build time.
 | Object | Purpose |
 |---|---|
 | `clients` | `id`, `domain` (login), `password_hash`, `name`, `deploy_hook_url` |
-| `projects` | Per-client content rows. `status` is `'current'` or `'completed'` — flipping it moves the project between the two sections of the client's site. |
+| `projects` | Per-client content rows. `status` is `'current'` or `'completed'` — flipping it moves the project between the two sections of the client's site. `hero_image` is the key image (thumbnail/cover photo); it defaults to the first uploaded photo but the client can pick any photo from `images[]` as the key image from the Projects tab. |
 | `team_members` | Per-client team bios (`name`, `title`, `photo`, `bio[]`, `education[]`, `personal`, `sort_order`). Added for Mission Properties as the first example of a second content shape — see note below. |
 | `client-files` bucket | **Private.** Arbitrary file drop (Files tab). Served via signed URLs. |
 | `project-media` bucket | **Public.** Project photos — must be publicly readable so they render on the client's live site. |
@@ -161,8 +161,10 @@ Set these in **both** `.env.local` *and* the Vercel project settings. Vercel doe
 ## The client's workflow, once set up
 
 1. Log into `/portal` with their domain + password.
-2. **Projects** tab — add/edit projects, upload photos, toggle Current ↔ Completed. Saves to
-   Supabase immediately.
+2. **Projects** tab — add/edit projects, upload photos, toggle Current ↔ Completed. Hovering
+   a photo shows a star button to set it as the key image (used as the project's
+   thumbnail/cover photo); the current key image is marked with a purple ring and a
+   "Key image" badge. Saves to Supabase immediately.
 3. **Publish** — triggers a rebuild of their site; changes go live in a few minutes.
 4. **Files** tab — drop arbitrary files for you (private, not shown on their site).
 
