@@ -12,14 +12,19 @@ const skillItems = [
   "Animation", "3D Experiences", "Headless CMS",
 ];
 
+// Seconds per item, held constant across tracks so rows with different
+// item counts still scroll at the same visual speed (70s / 17 items).
+const SECONDS_PER_ITEM = 70 / techItems.length;
+
 function MarqueeTrack({ items, reverse = false }: { items: string[]; reverse?: boolean }) {
   const doubled = [...items, ...items];
+  const duration = items.length * SECONDS_PER_ITEM;
   return (
     <div className="flex overflow-hidden">
       <div
         className="flex gap-8 whitespace-nowrap"
         style={{
-          animation: `${reverse ? "marquee-reverse" : "marquee"} 70s linear infinite`,
+          animation: `${reverse ? "marquee-reverse" : "marquee"} ${duration}s linear infinite`,
         }}
       >
         {doubled.map((item, i) => (
