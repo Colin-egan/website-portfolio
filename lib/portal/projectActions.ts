@@ -238,20 +238,30 @@ export async function uploadProjectImageAction(
   const { error: uploadError } = await supabase.storage.from(BUCKET).upload(path, file, {
     contentType: file.type || "application/octet-stream",
   });
-  if (uploadError) return { error: "Upload failed. Please try again." };
+  if (uploadError) {
+    console.error("uploadProjectImageAction: storage upload failed", uploadError);
+    return { error: `Upload failed: ${uploadError.message}` };
+  }
 
   const { data: publicUrlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
   const publicUrl = publicUrlData.publicUrl;
 
   const nextImages = [...(project.images ?? []), publicUrl];
-  await supabase
+  const { error: updateError } = await supabase
     .from("projects")
     .update({
       images: nextImages,
       hero_image: project.hero_image ?? publicUrl,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", projectId);
+    .eq("id", projectId)
+    .eq("client_id", session.clientId);
+
+  if (updateError) {
+    console.error("uploadProjectImageAction: project update failed", updateError);
+    await supabase.storage.from(BUCKET).remove([path]);
+    return { error: "Upload failed. Please try again." };
+  }
 
   revalidatePath("/portal");
   return { error: null };

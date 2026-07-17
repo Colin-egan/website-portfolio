@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
   },
   // Allow canvas-confetti in client bundle
   transpilePackages: [],
+  experimental: {
+    serverActions: {
+      // Default is 1MB, which rejects most real phone photos uploaded via the client portal.
+      bodySizeLimit: "10mb",
+    },
+  },
 };
 
 export default nextConfig;
