@@ -60,4 +60,16 @@ export const caseStudies: CaseStudy[] = [
     image: "/wilmingtonlawyersphoto.png",
     url: "https://02-built-azbb785af-colin7.vercel.app/",
   },
+  {
+    slug: "bloke-apparel-supply",
+    title: "Bloke Apparel & Supply",
+    client: "Bloke Apparel & Supply",
+    category: "Retail",
+    year: "2026",
+    description: "An independent menswear and supply shop site built around curated, shop-floor-tested goods rather than warehouse inventory.",
+    tags: ["Next.js", "Tailwind"],
+    color: "#7C3AED",
+    image: "/blokeapparelphoto.png",
+    url: "https://bloke-apparel-supply.vercel.app/index.html",
+  },
 ];
