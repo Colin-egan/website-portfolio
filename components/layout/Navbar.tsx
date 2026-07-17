@@ -41,7 +41,11 @@ export function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="group">
+          <Link
+            href="/"
+            className="group"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          >
             <Logo
               iconSize={36}
               className="text-foreground group-hover:text-purple-500 transition-colors duration-200"

@@ -102,7 +102,11 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-16">
           {/* Brand */}
           <div className="col-span-2">
-            <Link href="/" className="inline-block mb-4 group">
+            <Link
+              href="/"
+              className="inline-block mb-4 group"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
               <Logo
                 iconSize={28}
                 className="text-foreground group-hover:text-purple-500 transition-colors duration-200"
