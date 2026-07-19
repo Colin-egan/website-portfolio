@@ -13,8 +13,8 @@
     </mask>
   </defs>
 
-  <!-- Purple background -->
-  <rect width="800" height="220" fill="#7C3AED"/>
+  <!-- Amber background -->
+  <rect width="800" height="220" fill="#D97706"/>
 
   <!-- Play-button icon: right-pointing triangle with square cutout (evenodd) -->
   <path
