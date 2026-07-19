@@ -9,6 +9,16 @@ export interface CaseStudy {
   color: string;
   image: string;
   url: string;
+  /** Path to a short walkthrough video, e.g. "/videos/mission-properties.mp4". Optional — section is hidden when absent. */
+  video?: string;
+  /** "Old site" screenshot. When set, renders a before/after slider against `image` as the "after". */
+  beforeImage?: string;
+  /** Walkthrough of the old site. Paired with `videoAfter` to render a before/after video comparison. */
+  videoBefore?: string;
+  /** Walkthrough of the rebuilt site. Paired with `videoBefore` to render a before/after video comparison. */
+  videoAfter?: string;
+  /** Extra screenshots shown in a gallery grid below the main content. */
+  gallery?: string[];
 }
 
 export const caseStudies: CaseStudy[] = [
@@ -23,6 +33,8 @@ export const caseStudies: CaseStudy[] = [
     color: "#7C3AED",
     image: "/missionpropphoto.png",
     url: "https://missionproperties.vercel.app/",
+    videoBefore: "/videos/mission-properties-before.mp4",
+    videoAfter: "/videos/mission-properties-after.mp4",
   },
   {
     slug: "city-well",

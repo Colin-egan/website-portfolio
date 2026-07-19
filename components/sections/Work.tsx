@@ -25,7 +25,7 @@ function WorkCard({ study, index }: WorkCardProps) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <Link href={study.url} target="_blank" rel="noopener noreferrer" className="block">
+      <Link href={`/work/${study.slug}`} className="block">
         <div className="relative overflow-hidden rounded-2xl aspect-[4/3]">
           {/* Real photo */}
           <Image
