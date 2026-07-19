@@ -61,7 +61,7 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <Sparkles size={14} />
-            AI-powered web design & automation
+            Web design & business automation
           </motion.div>
 
           {/* Headline — word by word reveal */}
@@ -100,7 +100,7 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
           >
-            AI tools managed by human intelligence.
+            Websites and automation, built with care.
           </motion.p>
 
           {/* CTAs */}

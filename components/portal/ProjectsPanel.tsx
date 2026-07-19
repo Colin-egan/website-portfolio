@@ -22,6 +22,15 @@ const initialFormState: ProjectFormState = { error: null };
 const initialUploadState: UploadProjectImageState = { error: null };
 const initialPublishState: PublishState = { error: null, success: false };
 
+const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
+
+function getImageValidationError(file: File): string | null {
+  if (file.size > MAX_IMAGE_BYTES) {
+    return "Image is too large (max 20MB).";
+  }
+  return null;
+}
+
 export function ProjectsPanel({
   projects,
   publishEnabled,
@@ -117,6 +126,7 @@ function ProjectRow({
     uploadProjectImageAction,
     initialUploadState
   );
+  const [clientError, setClientError] = useState<string | null>(null);
 
   return (
     <Card className="p-2">
@@ -225,7 +235,21 @@ function ProjectRow({
                 );
               })}
             </div>
-            <form action={uploadFormAction} className="flex flex-col sm:flex-row gap-3">
+            <form
+              action={uploadFormAction}
+              onSubmit={(e) => {
+                const input = e.currentTarget.elements.namedItem("file") as HTMLInputElement;
+                const file = input?.files?.[0];
+                const error = file ? getImageValidationError(file) : null;
+                if (error) {
+                  e.preventDefault();
+                  setClientError(error);
+                } else {
+                  setClientError(null);
+                }
+              }}
+              className="flex flex-col sm:flex-row gap-3"
+            >
               <input type="hidden" name="projectId" value={project.id} />
               <input
                 type="file"
@@ -239,8 +263,8 @@ function ProjectRow({
                 {uploadPending ? "Uploading..." : "Add image"}
               </Button>
             </form>
-            {uploadState.error && (
-              <p className="text-sm text-destructive mt-2">{uploadState.error}</p>
+            {(clientError || uploadState.error) && (
+              <p className="text-sm text-destructive mt-2">{clientError ?? uploadState.error}</p>
             )}
           </div>
         </CardContent>

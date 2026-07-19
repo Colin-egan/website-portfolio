@@ -2,11 +2,11 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Sparkles, Globe, Bot } from "lucide-react";
+import { Sparkles, Globe, Palette } from "lucide-react";
 
 const passions = [
   { icon: Globe, label: "Web Design" },
-  { icon: Bot, label: "AI Agent Creation" },
+  { icon: Palette, label: "Branding" },
   { icon: Sparkles, label: "Automation" },
 ];
 
@@ -74,8 +74,8 @@ export function Team() {
               </div>
               <p className="text-muted-foreground text-lg leading-relaxed mb-8">
                 I founded Egan Lab in 2026 and immediately fell in love with the intersection of
-                web design, AI agent creation, and automation. What started as a curiosity became a
-                mission: build beautiful, intelligent digital products that actually move the needle
+                web design, branding, and automation. What started as a curiosity became a
+                mission: build beautiful digital products that actually move the needle
                 for the people behind them.
               </p>
 

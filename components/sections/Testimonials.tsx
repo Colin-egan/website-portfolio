@@ -14,7 +14,7 @@ const testimonials = [
     metric: "2× conversion rate",
   },
   {
-    quote: "I was skeptical about the AI-powered workflow but the results speak for themselves. The automation package alone saved my team 20 hours a week. We redirected that time to growth and hit our revenue target 2 months early.",
+    quote: "I was skeptical about handing off our workflow but the results speak for themselves. The automation package alone saved my team 20 hours a week. We redirected that time to growth and hit our revenue target 2 months early.",
     author: "James Müller",
     role: "Operations Director",
     company: "Ember Restaurant Group",

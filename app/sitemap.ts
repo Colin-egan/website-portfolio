@@ -1,22 +1,15 @@
 import type { MetadataRoute } from "next";
-import { caseStudies } from "@/lib/case-studies";
 
+// Note: /work/[slug] routes are intentionally excluded — they immediately
+// redirect off-domain to each client's live site, so there's no on-domain
+// content for search engines to index there.
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = "https://eganlab.com";
 
-  const staticRoutes = [
+  return [
     { url: base, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 1 },
     { url: `${base}/work`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.9 },
     { url: `${base}/pricing`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.9 },
     { url: `${base}/contact`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.8 },
   ];
-
-  const workRoutes = caseStudies.map((study) => ({
-    url: `${base}/work/${study.slug}`,
-    lastModified: new Date(),
-    changeFrequency: "monthly" as const,
-    priority: 0.7,
-  }));
-
-  return [...staticRoutes, ...workRoutes];
 }

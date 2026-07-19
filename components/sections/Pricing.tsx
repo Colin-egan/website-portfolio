@@ -55,7 +55,7 @@ const plans = [
     name: "Automation Package",
     price: "$450",
     period: "one-time",
-    description: "Stop doing repetitive work manually. Let AI and automation handle it.",
+    description: "Stop doing repetitive work manually. Let automation handle it.",
     features: [
       "Workflow automation (Zapier/Make/n8n)",
       "Client portal setup",

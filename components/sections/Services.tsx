@@ -32,8 +32,8 @@ const services = [
     title: "Automation",
     price: "From $450",
     description:
-      "Eliminate repetitive work with smart automations. From lead routing to AI-powered email sequences — we connect your entire stack.",
-    features: ["Zapier / Make / n8n", "CRM integration", "Email sequences", "Booking systems", "AI workflow design"],
+      "Eliminate repetitive work with smart automations. From lead routing to automated email sequences — we connect your entire stack.",
+    features: ["Zapier / Make / n8n", "CRM integration", "Email sequences", "Booking systems", "Custom workflow design"],
     color: "from-amber-600/20 to-amber-900/5",
     borderColor: "group-hover:border-amber-500/40",
     accent: "amber",

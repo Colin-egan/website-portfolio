@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import convert from "heic-convert";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSession } from "@/lib/portal/session";
 
@@ -141,6 +142,44 @@ function extractStoragePath(publicUrl: string): string | null {
   return decodeURIComponent(publicUrl.slice(idx + marker.length));
 }
 
+const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"]);
+
+function isHeic(file: File) {
+  const name = file.name.toLowerCase();
+  return (
+    name.endsWith(".heic") ||
+    name.endsWith(".heif") ||
+    file.type === "image/heic" ||
+    file.type === "image/heif"
+  );
+}
+
+async function convertHeicToJpeg(file: File): Promise<File> {
+  const inputBuffer = Buffer.from(await file.arrayBuffer());
+  const outputBuffer = await convert({ buffer: inputBuffer, format: "JPEG", quality: 0.92 });
+  const newName = file.name.replace(/\.(heic|heif)$/i, "") + ".jpg";
+  return new File([new Uint8Array(outputBuffer)], newName, { type: "image/jpeg" });
+}
+
+async function prepareImageFile(file: File): Promise<{ file: File; error: null } | { file: null; error: string }> {
+  if (file.size > MAX_IMAGE_BYTES) {
+    return { file: null, error: "Image is too large (max 20MB)." };
+  }
+  if (isHeic(file)) {
+    try {
+      return { file: await convertHeicToJpeg(file), error: null };
+    } catch (err) {
+      console.error("prepareImageFile: HEIC conversion failed", err);
+      return { file: null, error: "Couldn't convert this HEIC photo. Please export as JPEG and try again." };
+    }
+  }
+  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+    return { file: null, error: "Unsupported image format. Please use JPEG, PNG, WebP, or GIF." };
+  }
+  return { file, error: null };
+}
+
 export type UploadTeamPhotoState = { error: string | null };
 
 export async function uploadTeamPhotoAction(
@@ -151,10 +190,14 @@ export async function uploadTeamPhotoAction(
   if (!session) return { error: "Not authenticated." };
 
   const memberId = String(formData.get("memberId") || "");
-  const file = formData.get("file");
-  if (!memberId || !(file instanceof File) || file.size === 0) {
+  const rawFile = formData.get("file");
+  if (!memberId || !(rawFile instanceof File) || rawFile.size === 0) {
     return { error: "Choose a photo to upload." };
   }
+
+  const prepared = await prepareImageFile(rawFile);
+  if (!prepared.file) return { error: prepared.error };
+  const file = prepared.file;
 
   const supabase = getSupabaseAdmin();
   const { data: member } = await supabase

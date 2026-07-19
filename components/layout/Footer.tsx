@@ -114,7 +114,7 @@ export function Footer() {
               />
             </Link>
             <p className="text-muted-foreground text-sm mb-6 max-w-xs leading-relaxed">
-              AI tools managed by human intelligence. We build websites that win clients — and automations that scale businesses.
+              We build websites that win clients — and automations that scale businesses.
             </p>
 
             {/* Newsletter */}

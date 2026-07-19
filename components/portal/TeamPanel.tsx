@@ -17,6 +17,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 const initialFormState: TeamFormState = { error: null };
 const initialUploadState: UploadTeamPhotoState = { error: null };
 
+const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
+
+function getImageValidationError(file: File): string | null {
+  if (file.size > MAX_IMAGE_BYTES) {
+    return "Image is too large (max 20MB).";
+  }
+  return null;
+}
+
 export function TeamPanel({ members }: { members: TeamMember[] }) {
   const [addOpen, setAddOpen] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -82,6 +91,7 @@ function TeamMemberRow({
     uploadTeamPhotoAction,
     initialUploadState
   );
+  const [clientError, setClientError] = useState<string | null>(null);
 
   return (
     <Card className="p-2">
@@ -143,7 +153,21 @@ function TeamMemberRow({
                 </form>
               </div>
             )}
-            <form action={uploadFormAction} className="flex flex-col sm:flex-row gap-3">
+            <form
+              action={uploadFormAction}
+              onSubmit={(e) => {
+                const input = e.currentTarget.elements.namedItem("file") as HTMLInputElement;
+                const file = input?.files?.[0];
+                const error = file ? getImageValidationError(file) : null;
+                if (error) {
+                  e.preventDefault();
+                  setClientError(error);
+                } else {
+                  setClientError(null);
+                }
+              }}
+              className="flex flex-col sm:flex-row gap-3"
+            >
               <input type="hidden" name="memberId" value={member.id} />
               <input
                 type="file"
@@ -157,7 +181,9 @@ function TeamMemberRow({
                 {uploadPending ? "Uploading..." : member.photo ? "Replace photo" : "Add photo"}
               </Button>
             </form>
-            {uploadState.error && <p className="text-sm text-destructive mt-2">{uploadState.error}</p>}
+            {(clientError || uploadState.error) && (
+              <p className="text-sm text-destructive mt-2">{clientError ?? uploadState.error}</p>
+            )}
           </div>
         </CardContent>
       )}
