@@ -64,12 +64,12 @@ export function Contact() {
           {/* Left — copy */}
           <div className="md:sticky md:top-32">
             <motion.div
-              className="text-sm font-medium text-purple-400 mb-4 flex items-center gap-2"
+              className="text-sm font-medium text-amber-400 mb-4 flex items-center gap-2"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
             >
-              <span className="w-8 h-px bg-purple-400" />
+              <span className="w-8 h-px bg-amber-400" />
               Get in touch
             </motion.div>
             <motion.h2
@@ -94,20 +94,20 @@ export function Contact() {
 
             <div className="space-y-4">
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                <div className="w-8 h-8 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-                  <CheckCircle size={14} className="text-purple-400" />
+                <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                  <CheckCircle size={14} className="text-amber-400" />
                 </div>
                 Free strategy consultation
               </div>
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                <div className="w-8 h-8 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-                  <CheckCircle size={14} className="text-purple-400" />
+                <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                  <CheckCircle size={14} className="text-amber-400" />
                 </div>
                 Response within 24 hours
               </div>
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                <div className="w-8 h-8 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-                  <CheckCircle size={14} className="text-purple-400" />
+                <div className="w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                  <CheckCircle size={14} className="text-amber-400" />
                 </div>
                 No commitment required
               </div>
@@ -117,7 +117,7 @@ export function Contact() {
               <p className="text-sm text-muted-foreground mb-2">Prefer email?</p>
               <a
                 href="mailto:colinthomasegan5@gmail.com"
-                className="text-purple-400 hover:text-purple-300 transition-colors font-medium"
+                className="text-amber-400 hover:text-amber-300 transition-colors font-medium"
               >
                 colinthomasegan5@gmail.com
               </a>
@@ -138,9 +138,9 @@ export function Contact() {
                           <div
                             className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
                               i < step
-                                ? "bg-purple-600 text-white"
+                                ? "bg-amber-600 text-white"
                                 : i === step
-                                ? "bg-purple-500/20 border border-purple-500/50 text-purple-400"
+                                ? "bg-amber-500/20 border border-amber-500/50 text-amber-400"
                                 : "bg-white/5 text-muted-foreground"
                             }`}
                           >
@@ -148,7 +148,7 @@ export function Contact() {
                           </div>
                           {i < steps.length - 1 && (
                             <div
-                              className={`h-px flex-1 w-6 transition-colors duration-300 ${i < step ? "bg-purple-500" : "bg-white/10"}`}
+                              className={`h-px flex-1 w-6 transition-colors duration-300 ${i < step ? "bg-amber-500" : "bg-white/10"}`}
                             />
                           )}
                         </div>
@@ -177,7 +177,7 @@ export function Contact() {
                             value={data.name}
                             onChange={(e) => setData({ ...data, name: e.target.value })}
                             placeholder="Jane Smith"
-                            className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500/50 transition-colors placeholder:text-muted-foreground/40"
+                            className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500/50 transition-colors placeholder:text-muted-foreground/40"
                           />
                         </div>
                         <div>
@@ -187,7 +187,7 @@ export function Contact() {
                             onChange={(e) => setData({ ...data, email: e.target.value })}
                             placeholder="jane@company.com"
                             type="email"
-                            className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500/50 transition-colors placeholder:text-muted-foreground/40"
+                            className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500/50 transition-colors placeholder:text-muted-foreground/40"
                           />
                         </div>
                       </motion.div>
@@ -213,8 +213,8 @@ export function Contact() {
                               onClick={() => setData({ ...data, projectType: type })}
                               className={`py-3 px-4 rounded-xl text-sm text-left transition-all duration-200 border ${
                                 data.projectType === type
-                                  ? "border-purple-500 bg-purple-500/15 text-purple-300"
-                                  : "border-white/8 bg-white/3 hover:border-purple-500/30 text-muted-foreground hover:text-foreground"
+                                  ? "border-amber-500 bg-amber-500/15 text-amber-300"
+                                  : "border-white/8 bg-white/3 hover:border-amber-500/30 text-muted-foreground hover:text-foreground"
                               }`}
                             >
                               {type}
@@ -244,8 +244,8 @@ export function Contact() {
                               onClick={() => setData({ ...data, budget: range })}
                               className={`w-full py-3 px-4 rounded-xl text-sm text-left transition-all duration-200 border ${
                                 data.budget === range
-                                  ? "border-purple-500 bg-purple-500/15 text-purple-300"
-                                  : "border-white/8 bg-white/3 hover:border-purple-500/30 text-muted-foreground hover:text-foreground"
+                                  ? "border-amber-500 bg-amber-500/15 text-amber-300"
+                                  : "border-white/8 bg-white/3 hover:border-amber-500/30 text-muted-foreground hover:text-foreground"
                               }`}
                             >
                               {range}
@@ -274,7 +274,7 @@ export function Contact() {
                           onChange={(e) => setData({ ...data, message: e.target.value })}
                           placeholder="Describe your project, timeline, any specific features you need..."
                           rows={6}
-                          className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500/50 transition-colors placeholder:text-muted-foreground/40 resize-none"
+                          className="w-full bg-background border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500/50 transition-colors placeholder:text-muted-foreground/40 resize-none"
                         />
                       </motion.div>
                     )}
@@ -294,7 +294,7 @@ export function Contact() {
                         else handleSubmit();
                       }}
                       disabled={!canProceed()}
-                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium text-sm transition-all duration-200"
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium text-sm transition-all duration-200"
                     >
                       {step === 3 ? "Send Message" : "Continue"}
                       <ArrowRight size={14} />
@@ -311,7 +311,7 @@ export function Contact() {
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
-                    className="w-16 h-16 rounded-full bg-purple-600 flex items-center justify-center mx-auto mb-6"
+                    className="w-16 h-16 rounded-full bg-amber-600 flex items-center justify-center mx-auto mb-6"
                   >
                     <CheckCircle size={28} className="text-white" />
                   </motion.div>

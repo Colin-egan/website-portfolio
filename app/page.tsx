@@ -1,7 +1,6 @@
 import { Hero } from "@/components/sections/Hero";
 import { Marquee } from "@/components/sections/Marquee";
 import { Services } from "@/components/sections/Services";
-import { FeaturesShowcase } from "@/components/sections/FeaturesShowcase";
 import { Process } from "@/components/sections/Process";
 import { Work } from "@/components/sections/Work";
 import { Team } from "@/components/sections/Team";
@@ -16,7 +15,6 @@ export default function HomePage() {
       <Hero />
       <Marquee />
       <Services />
-      <FeaturesShowcase />
       <Process />
       <Work />
       <Team />

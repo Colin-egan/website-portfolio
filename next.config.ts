@@ -7,12 +7,11 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "api.dicebear.com" },
     ],
   },
-  // Allow canvas-confetti in client bundle
-  transpilePackages: [],
   experimental: {
     serverActions: {
-      // Default is 1MB, which rejects most real phone photos uploaded via the client portal.
-      bodySizeLimit: "10mb",
+      // Default is 1MB. Raised further since desktop-imported camera/DSLR photos
+      // routinely exceed 10MB — the client portal was still crashing on those.
+      bodySizeLimit: "20mb",
     },
   },
 };

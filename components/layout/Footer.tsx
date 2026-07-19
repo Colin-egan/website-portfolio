@@ -61,11 +61,11 @@ function BackToTopButton() {
   return (
     <motion.button
       onClick={scrollToTop}
-      className="w-12 h-12 rounded-full border border-foreground/15 flex items-center justify-center hover:border-purple-500/50 hover:bg-purple-500/10 transition-all duration-300 group"
+      className="w-12 h-12 rounded-full border border-foreground/15 flex items-center justify-center hover:border-amber-500/50 hover:bg-amber-500/10 transition-all duration-300 group"
       whileHover={{ y: -4 }}
       whileTap={{ scale: 0.9 }}
     >
-      <ArrowUp size={18} className="group-hover:text-purple-400 transition-colors" />
+      <ArrowUp size={18} className="group-hover:text-amber-400 transition-colors" />
     </motion.button>
   );
 }
@@ -109,7 +109,7 @@ export function Footer() {
             >
               <Logo
                 iconSize={28}
-                className="text-foreground group-hover:text-purple-500 transition-colors duration-200"
+                className="text-foreground group-hover:text-amber-500 transition-colors duration-200"
                 textClassName="text-lg"
               />
             </Link>
@@ -125,11 +125,11 @@ export function Footer() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
                   type="email"
-                  className="flex-1 bg-background border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-500/50 transition-colors placeholder:text-muted-foreground/40"
+                  className="flex-1 bg-background border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-500/50 transition-colors placeholder:text-muted-foreground/40"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium transition-colors whitespace-nowrap"
+                  className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium transition-colors whitespace-nowrap"
                 >
                   Subscribe
                 </button>
@@ -138,7 +138,7 @@ export function Footer() {
               <motion.p
                 initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-sm text-purple-400"
+                className="text-sm text-amber-400"
               >
                 ✓ You're subscribed!
               </motion.p>

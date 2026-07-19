@@ -48,7 +48,7 @@ export function Navbar() {
           >
             <Logo
               iconSize={36}
-              className="text-foreground group-hover:text-purple-500 transition-colors duration-200"
+              className="text-foreground group-hover:text-amber-500 transition-colors duration-200"
               textClassName="text-lg"
             />
           </Link>
@@ -62,7 +62,7 @@ export function Navbar() {
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors relative group"
               >
                 {link.label}
-                <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-purple-400 group-hover:w-full transition-all duration-300" />
+                <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-amber-400 group-hover:w-full transition-all duration-300" />
               </Link>
             ))}
           </nav>
@@ -71,7 +71,7 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-4">
             <Link
               href="/contact"
-              className="px-5 py-2.5 rounded-full bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium transition-all duration-200 hover:shadow-lg hover:shadow-purple-500/25"
+              className="px-5 py-2.5 rounded-full bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium transition-all duration-200 hover:shadow-lg hover:shadow-amber-500/25"
             >
               Book a Call
             </Link>
@@ -108,7 +108,7 @@ export function Navbar() {
                 <Link
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className="text-3xl font-display font-bold hover:text-purple-400 transition-colors"
+                  className="text-3xl font-display font-bold hover:text-amber-400 transition-colors"
                 >
                   {link.label}
                 </Link>
@@ -122,7 +122,7 @@ export function Navbar() {
               <Link
                 href="/contact"
                 onClick={() => setMobileOpen(false)}
-                className="px-8 py-4 rounded-full bg-purple-600 hover:bg-purple-500 text-white text-lg font-medium transition-all"
+                className="px-8 py-4 rounded-full bg-amber-600 hover:bg-amber-500 text-white text-lg font-medium transition-all"
               >
                 Book a Call
               </Link>

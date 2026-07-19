@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { Sparkles, Globe, Bot } from "lucide-react";
 
 const passions = [
@@ -16,14 +17,14 @@ export function Team() {
         {/* Header */}
         <div className="text-center mb-20">
           <motion.div
-            className="text-sm font-medium text-purple-400 mb-4 flex items-center justify-center gap-2"
+            className="text-sm font-medium text-amber-600 mb-4 flex items-center justify-center gap-2"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
-            <span className="w-8 h-px bg-purple-400" />
+            <span className="w-8 h-px bg-amber-600" />
             The team
-            <span className="w-8 h-px bg-purple-400" />
+            <span className="w-8 h-px bg-amber-600" />
           </motion.div>
           <motion.h2
             className="text-5xl md:text-6xl font-display font-black leading-tight"
@@ -46,14 +47,20 @@ export function Team() {
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         >
           {/* Background glow */}
-          <div className="pointer-events-none absolute -top-32 -left-32 w-80 h-80 rounded-full bg-purple-600/20 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 -right-24 w-64 h-64 rounded-full bg-purple-500/10 blur-3xl" />
+          <div className="pointer-events-none absolute -top-32 -left-32 w-80 h-80 rounded-full bg-amber-600/20 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -right-24 w-64 h-64 rounded-full bg-amber-500/10 blur-3xl" />
 
           <div className="relative flex flex-col md:flex-row gap-10 items-start md:items-center">
             {/* Avatar */}
             <div className="shrink-0">
-              <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-900 flex items-center justify-center text-4xl font-display font-black text-white shadow-lg shadow-purple-900/40">
-                CE
+              <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-2xl overflow-hidden ring-1 ring-white/10 shadow-lg shadow-amber-900/20">
+                <Image
+                  src="/ColinEgan.jpg"
+                  alt="Colin Egan, founder of Egan Lab"
+                  fill
+                  sizes="128px"
+                  className="object-cover"
+                />
               </div>
             </div>
 
@@ -61,7 +68,7 @@ export function Team() {
             <div className="flex-1">
               <div className="flex flex-wrap items-center gap-3 mb-2">
                 <h3 className="text-2xl font-display font-bold">Colin Egan</h3>
-                <span className="px-3 py-1 rounded-full bg-purple-500/15 border border-purple-500/25 text-purple-300 text-xs font-medium">
+                <span className="px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/25 text-amber-700 dark:text-amber-300 text-xs font-medium">
                   Founder · 2026
                 </span>
               </div>
@@ -79,7 +86,7 @@ export function Team() {
                     key={label}
                     className="flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 text-sm font-medium text-white/80"
                   >
-                    <Icon size={14} className="text-purple-400" />
+                    <Icon size={14} className="text-amber-600" />
                     {label}
                   </div>
                 ))}

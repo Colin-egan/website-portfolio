@@ -57,11 +57,11 @@ function WorkCard({ study, index }: WorkCardProps) {
 
           {/* Hover overlay */}
           <div
-            className="absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-purple-900/80 backdrop-blur-[2px]"
+            className="absolute inset-0 flex items-center justify-center transition-opacity duration-300 bg-amber-900/80 backdrop-blur-[2px]"
             style={{ opacity: hovered ? 1 : 0 }}
           >
             <div className="text-center px-6">
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-purple-900 font-semibold text-sm mb-4">
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-amber-900 font-semibold text-sm mb-4">
                 View Project <ArrowUpRight size={14} />
               </div>
               <p className="text-white/80 text-sm leading-relaxed max-w-[220px] mx-auto">
@@ -74,14 +74,14 @@ function WorkCard({ study, index }: WorkCardProps) {
         {/* Below-card meta */}
         <div className="mt-4 flex items-start justify-between">
           <div>
-            <h3 className="font-display font-semibold text-lg group-hover:text-purple-300 transition-colors">
+            <h3 className="font-display font-semibold text-lg group-hover:text-amber-300 transition-colors">
               {study.title}
             </h3>
             <div className="text-muted-foreground text-sm mt-1">{study.category} · {study.year}</div>
           </div>
           <ArrowUpRight
             size={18}
-            className="text-muted-foreground group-hover:text-purple-400 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-all mt-0.5"
+            className="text-muted-foreground group-hover:text-amber-400 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-all mt-0.5"
           />
         </div>
 
@@ -89,7 +89,7 @@ function WorkCard({ study, index }: WorkCardProps) {
           {study.tags.slice(0, 3).map((tag) => (
             <span
               key={tag}
-              className="px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-xs text-purple-300"
+              className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs text-amber-300"
             >
               {tag}
             </span>
@@ -107,12 +107,12 @@ export function Work() {
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
         <div className="max-w-xl">
           <motion.div
-            className="text-sm font-semibold text-purple-400 mb-4 flex items-center gap-2 tracking-[0.12em] uppercase"
+            className="text-sm font-semibold text-amber-400 mb-4 flex items-center gap-2 tracking-[0.12em] uppercase"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
-            <span className="w-6 h-px bg-purple-400" />
+            <span className="w-6 h-px bg-amber-400" />
             Selected work
           </motion.div>
           <motion.h2

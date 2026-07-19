@@ -50,12 +50,12 @@ export function Process() {
         {/* Header */}
         <div className="max-w-2xl mb-20">
           <motion.div
-            className="text-sm font-semibold text-purple-400 mb-4 flex items-center gap-2 tracking-[0.12em] uppercase"
+            className="text-sm font-semibold text-amber-400 mb-4 flex items-center gap-2 tracking-[0.12em] uppercase"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
-            <span className="w-6 h-px bg-purple-400" />
+            <span className="w-6 h-px bg-amber-400" />
             How it works
           </motion.div>
           <motion.h2
@@ -73,10 +73,10 @@ export function Process() {
         {/* Steps — horizontal on desktop, vertical timeline on mobile */}
         <div className="relative">
           {/* Desktop horizontal connector line */}
-          <div className="hidden md:block absolute top-8 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
+          <div className="hidden md:block absolute top-8 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/30 to-transparent" />
 
           {/* Mobile vertical connector line */}
-          <div className="md:hidden absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-purple-500/30 via-purple-500/20 to-transparent" />
+          <div className="md:hidden absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-amber-500/30 via-amber-500/20 to-transparent" />
 
           <div className="grid md:grid-cols-5 gap-0 md:gap-8">
             {steps.map((step, i) => (
@@ -89,12 +89,12 @@ export function Process() {
                 transition={{ duration: 0.6, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
               >
                 {/* Step number dot */}
-                <div className="w-16 h-16 rounded-full border border-purple-500/30 bg-card flex items-center justify-center mb-0 md:mb-6 relative z-10 group-hover:border-purple-500/60 group-hover:bg-purple-500/10 transition-all duration-300 flex-shrink-0">
+                <div className="w-16 h-16 rounded-full border border-amber-500/30 bg-card flex items-center justify-center mb-0 md:mb-6 relative z-10 group-hover:border-amber-500/60 group-hover:bg-amber-500/10 transition-all duration-300 flex-shrink-0">
                   <span className="font-display font-black text-xl text-gradient">{step.number}</span>
                 </div>
 
                 <div className="pt-2 md:pt-0">
-                  <div className="text-sm text-purple-400 font-medium mb-2 tracking-wide">{step.duration}</div>
+                  <div className="text-sm text-amber-400 font-medium mb-2 tracking-wide">{step.duration}</div>
                   <h3 className="font-display font-bold text-2xl mb-3">{step.title}</h3>
                   <p className="text-muted-foreground text-sm leading-loose">{step.description}</p>
                 </div>
@@ -113,7 +113,7 @@ export function Process() {
         >
           <a
             href="/contact"
-            className="inline-flex items-center gap-3 px-10 py-5 rounded-full bg-purple-600 hover:bg-purple-500 text-white font-semibold text-lg transition-all duration-300 hover:shadow-2xl hover:shadow-purple-500/25 hover:-translate-y-0.5"
+            className="inline-flex items-center gap-3 px-10 py-5 rounded-full bg-amber-600 hover:bg-amber-500 text-white font-semibold text-lg transition-all duration-300 hover:shadow-2xl hover:shadow-amber-500/25 hover:-translate-y-0.5"
           >
             Start your project
           </a>

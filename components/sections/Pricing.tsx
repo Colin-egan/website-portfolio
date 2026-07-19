@@ -116,14 +116,14 @@ export function Pricing() {
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
           <motion.div
-            className="text-sm font-medium text-purple-400 mb-4 flex items-center justify-center gap-2"
+            className="text-sm font-medium text-amber-400 mb-4 flex items-center justify-center gap-2"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
-            <span className="w-8 h-px bg-purple-400" />
+            <span className="w-8 h-px bg-amber-400" />
             Pricing
-            <span className="w-8 h-px bg-purple-400" />
+            <span className="w-8 h-px bg-amber-400" />
           </motion.div>
           <motion.h2
             className="text-5xl md:text-6xl font-display font-black mb-6 leading-tight"
@@ -153,8 +153,8 @@ export function Pricing() {
               key={plan.name}
               className={`relative rounded-2xl p-8 flex flex-col transition-all duration-500 hover:-translate-y-1 ${
                 plan.featured
-                  ? "bg-purple-600 glow"
-                  : "bg-card border border-white/8 hover:border-purple-500/30"
+                  ? "bg-amber-600 glow"
+                  : "bg-card border border-white/8 hover:border-amber-500/30"
               }`}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -162,35 +162,35 @@ export function Pricing() {
               transition={{ duration: 0.6, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
             >
               {plan.badge && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-white text-purple-900 text-xs font-bold">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-white text-amber-900 text-xs font-bold">
                   {plan.badge}
                 </div>
               )}
 
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-6 ${plan.featured ? "bg-white/20" : "bg-purple-500/10 border border-purple-500/20"}`}>
-                <plan.icon size={18} className={plan.featured ? "text-white" : "text-purple-400"} />
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-6 ${plan.featured ? "bg-white/20" : "bg-amber-500/10 border border-amber-500/20"}`}>
+                <plan.icon size={18} className={plan.featured ? "text-white" : "text-amber-400"} />
               </div>
 
-              <div className={`text-sm font-medium mb-2 ${plan.featured ? "text-purple-200" : "text-purple-400"}`}>
+              <div className={`text-sm font-medium mb-2 ${plan.featured ? "text-amber-200" : "text-amber-400"}`}>
                 {plan.name}
               </div>
               <div className="flex items-end gap-1 mb-4">
                 <span className={`text-5xl font-display font-black ${plan.featured ? "text-white" : ""}`}>
                   {plan.price}
                 </span>
-                <span className={`text-sm mb-2 ${plan.featured ? "text-purple-200" : "text-muted-foreground"}`}>
+                <span className={`text-sm mb-2 ${plan.featured ? "text-amber-200" : "text-muted-foreground"}`}>
                   {plan.period}
                 </span>
               </div>
-              <p className={`text-sm mb-8 leading-relaxed ${plan.featured ? "text-purple-100" : "text-muted-foreground"}`}>
+              <p className={`text-sm mb-8 leading-relaxed ${plan.featured ? "text-amber-100" : "text-muted-foreground"}`}>
                 {plan.description}
               </p>
 
               <ul className="space-y-3 mb-10 flex-1">
                 {plan.features.map((feat) => (
                   <li key={feat} className="flex items-start gap-2.5 text-sm">
-                    <Check size={15} className={`flex-shrink-0 mt-0.5 ${plan.featured ? "text-purple-200" : "text-purple-400"}`} />
-                    <span className={plan.featured ? "text-purple-100" : "text-muted-foreground"}>{feat}</span>
+                    <Check size={15} className={`flex-shrink-0 mt-0.5 ${plan.featured ? "text-amber-200" : "text-amber-400"}`} />
+                    <span className={plan.featured ? "text-amber-100" : "text-muted-foreground"}>{feat}</span>
                   </li>
                 ))}
               </ul>
@@ -199,8 +199,8 @@ export function Pricing() {
                 href="/contact"
                 className={`block text-center py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
                   plan.featured
-                    ? "bg-white text-purple-700 hover:bg-purple-50"
-                    : "border border-purple-500/40 text-purple-300 hover:bg-purple-500/10 hover:border-purple-500/60"
+                    ? "bg-white text-amber-700 hover:bg-amber-50"
+                    : "border border-amber-500/40 text-amber-300 hover:bg-amber-500/10 hover:border-amber-500/60"
                 }`}
               >
                 {plan.cta}
@@ -230,9 +230,9 @@ export function Pricing() {
               >
                 <AccordionItem
                   value={`item-${i}`}
-                  className="border border-white/8 rounded-xl px-5 bg-card data-[state=open]:border-purple-500/30"
+                  className="border border-white/8 rounded-xl px-5 bg-card data-[state=open]:border-amber-500/30"
                 >
-                  <AccordionTrigger className="text-sm font-medium hover:no-underline hover:text-purple-300 transition-colors py-4">
+                  <AccordionTrigger className="text-sm font-medium hover:no-underline hover:text-amber-300 transition-colors py-4">
                     {faq.q}
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground text-sm leading-relaxed pb-4">
