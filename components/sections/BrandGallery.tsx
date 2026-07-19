@@ -131,7 +131,7 @@ export function BrandGallery() {
         </motion.p>
       </div>
 
-      <div className="flex gap-6 md:gap-8 overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none px-6 md:px-0 max-w-7xl mx-auto pb-6 md:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex items-start gap-6 md:gap-8 overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none px-6 md:px-0 max-w-7xl mx-auto pb-6 md:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {shots.map((shot, i) => (
           <Photo key={shot.label} shot={shot} index={i} />
         ))}
