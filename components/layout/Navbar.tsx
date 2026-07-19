@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/ui/Logo";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 const navLinks = [
   { label: "Services", href: "/#services" },
@@ -69,6 +70,7 @@ export function Navbar() {
 
           {/* CTA */}
           <div className="hidden md:flex items-center gap-4">
+            <ThemeToggle />
             <Link
               href="/contact"
               className="px-5 py-2.5 rounded-full bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium transition-all duration-200 hover:shadow-lg hover:shadow-amber-500/25"
@@ -78,13 +80,16 @@ export function Navbar() {
           </div>
 
           {/* Mobile menu button */}
-          <button
-            className="md:hidden p-2 rounded-lg hover:bg-foreground/5 transition-colors"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          <div className="md:hidden flex items-center gap-1">
+            <ThemeToggle />
+            <button
+              className="p-2 rounded-lg hover:bg-foreground/5 transition-colors"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
         </div>
       </motion.header>
 
