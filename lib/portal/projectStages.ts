@@ -15,7 +15,7 @@ export const STAGES = ["pipeline", "construction", "completed"] as const;
 
 export const STAGE_LABELS: Record<ProjectStage, string> = {
   pipeline: "In the Pipeline",
-  construction: "In Construction",
+  construction: "Under Construction",
   completed: "Completed",
 };
 

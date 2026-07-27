@@ -57,7 +57,7 @@ export function ProjectsPanel({
         <div>
           <h2 className="text-lg font-display font-bold">Projects</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Add properties, edit details, and move them between In the Pipeline, In
+            Add properties, edit details, and move them between In the Pipeline, Under
             Construction, and Completed.
           </p>
         </div>

@@ -25,11 +25,11 @@ All 8 current projects have `phase = null`. The site's fallback (`row.phase === 
 
 ## Goal
 
-Let the client pick one of three stages per project — **In the Pipeline**, **In Construction**, **Completed** — from the Projects tab, and have that choice drive the corresponding section of their live site.
+Let the client pick one of three stages per project — **In the Pipeline**, **Under Construction**, **Completed** — from the Projects tab, and have that choice drive the corresponding section of their live site.
 
 ## Decisions
 
-1. **Label wording:** the middle stage is labelled **"In Construction"** in both the portal and the public site. The stored database value remains `under_construction` — this is a label change only, no enum migration.
+1. **Label wording:** the middle stage is labelled **"Under Construction"**, matching both the stored database value and the wording already on the public site. (An earlier revision of this spec renamed it to "In Construction"; that was reverted, so the client site needs no label change at all.)
 2. **Backfill:** existing `current` rows with `phase IS NULL` are set to `under_construction`, making the site's implicit fallback explicit. Stray `phase` values on `completed` rows are cleared.
 
 ## Data model
@@ -39,7 +39,7 @@ Keep the existing two columns and derive a single three-way *stage* in the porta
 | Portal stage | `status` | `phase` |
 |---|---|---|
 | In the Pipeline | `current` | `in_pipeline` |
-| In Construction | `current` | `under_construction` |
+| Under Construction | `current` | `under_construction` |
 | Completed | `completed` | `null` |
 
 Current schema (unchanged by this work):
@@ -68,15 +68,14 @@ Collapsing `status` into a single three-value column. It requires altering the C
 
 - **`StagePicker`** — a segmented three-way control rendered as radio inputs named `stage`. Used in two modes:
   - *Existing row:* inside its own `<form action={setProjectStageAction.bind(null, project.id)}>`, auto-submitting on change via `e.currentTarget.form?.requestSubmit()`. Preserves today's instant-save feel and replaces the `Mark as ...` button.
-  - *New project form:* plain radio inputs inside `ProjectForm`, defaulting to **In Construction**, read by `upsertProjectAction`'s insert branch.
+  - *New project form:* plain radio inputs inside `ProjectForm`, defaulting to **Under Construction**, read by `upsertProjectAction`'s insert branch.
 - **`StatusBadge` → `StageBadge`** — three states instead of two. Construction keeps the existing amber, completed keeps the existing purple, pipeline takes a third colour.
 - **`ProjectForm`** — remove `<input type="hidden" name="status" ...>`. Render `StagePicker` only when creating (`!project`); for existing projects the row-level picker owns it.
 - Panel description copy: "…move them between Current and Completed" → wording covering the three stages.
 
 ### Client site (`../missionproperties`, separate repo)
 
-- `lib/completed-projects.ts`: `PHASE_LABELS.under_construction` → `"In Construction"`. Both the `/current-projects` section heading and the `/current-projects/[slug]` detail badge read from this constant, so one edit covers both.
-- **Out of scope:** other "Under Construction" strings in that repo (`app/page.tsx`, `app/about/page.tsx`, `app/layout.tsx`) are marketing copy — stat sublabels like "Completed & Under Construction" and prose about $2B in projects. They describe the portfolio generally, not a project's stage, and are left unchanged.
+**No changes required.** The site already reads `phase` and already labels the section "Under Construction", so the portal writing `phase` is enough to make the existing In the Pipeline section reachable.
 
 ### Database migration
 
@@ -120,7 +119,7 @@ The repo has no test harness, so verification is manual:
 3. Create a new project and confirm it lands in the stage picked on the form.
 4. Edit an existing **completed** project's name and save; confirm it stays completed (regression test for the clobber bug).
 5. Query the database to confirm `status`/`phase` pairs match the mapping table.
-6. Build the client site and confirm a project moved to In the Pipeline renders under that heading, and the heading reads "In Construction".
+6. Build the client site and confirm a project moved to In the Pipeline renders under that heading.
 
 ## Sequencing
 

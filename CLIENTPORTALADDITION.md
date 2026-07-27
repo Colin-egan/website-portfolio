@@ -28,13 +28,12 @@ this across two columns, because the client's site queries them separately:
 | Portal stage | `status` | `phase` | Where it lands on the site |
 |---|---|---|---|
 | In the Pipeline | `current` | `in_pipeline` | `/current-projects`, "In the Pipeline" section |
-| In Construction | `current` | `under_construction` | `/current-projects`, "In Construction" section |
+| Under Construction | `current` | `under_construction` | `/current-projects`, "Under Construction" section |
 | Completed | `completed` | `null` | `/completed-projects` |
 
 The mapping lives in one place — `stageOf()` and `columnsForStage()` in
-[lib/portal/projectActions.ts](lib/portal/projectActions.ts). Note the stored value stays
-`under_construction` while the label reads "In Construction"; the client site's
-`PHASE_LABELS` owns that wording.
+[lib/portal/projectStages.ts](lib/portal/projectStages.ts). The portal's `STAGE_LABELS` and
+the client site's `PHASE_LABELS` each own their own wording; keep them in sync by hand.
 
 Invariant: a `current` row always has a non-null `phase`, and a `completed` row always has
 `phase = null`. A new client's rows satisfy this automatically since the stage picker writes
@@ -182,7 +181,7 @@ Set these in **both** `.env.local` *and* the Vercel project settings. Vercel doe
 
 1. Log into `/portal` with their domain + password.
 2. **Projects** tab — add/edit projects, upload photos, and set each project's stage
-   (In the Pipeline / In Construction / Completed) from the segmented control. Hovering
+   (In the Pipeline / Under Construction / Completed) from the segmented control. Hovering
    a photo shows a star button to set it as the key image (used as the project's
    thumbnail/cover photo); the current key image is marked with a purple ring and a
    "Key image" badge. Saves to Supabase immediately.
