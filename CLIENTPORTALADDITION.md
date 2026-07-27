@@ -20,12 +20,32 @@ build time.
   **Publish** button in the Projects tab POSTs to it, rebuilding the client's site so it
   picks up the latest Supabase content.
 
+### Project stages
+
+The client picks one of three stages per project in the Projects tab. The portal stores
+this across two columns, because the client's site queries them separately:
+
+| Portal stage | `status` | `phase` | Where it lands on the site |
+|---|---|---|---|
+| In the Pipeline | `current` | `in_pipeline` | `/current-projects`, "In the Pipeline" section |
+| In Construction | `current` | `under_construction` | `/current-projects`, "In Construction" section |
+| Completed | `completed` | `null` | `/completed-projects` |
+
+The mapping lives in one place — `stageOf()` and `columnsForStage()` in
+[lib/portal/projectActions.ts](lib/portal/projectActions.ts). Note the stored value stays
+`under_construction` while the label reads "In Construction"; the client site's
+`PHASE_LABELS` owns that wording.
+
+Invariant: a `current` row always has a non-null `phase`, and a `completed` row always has
+`phase = null`. A new client's rows satisfy this automatically since the stage picker writes
+both columns together.
+
 ### Shared schema (already exists — don't recreate)
 
 | Object | Purpose |
 |---|---|
 | `clients` | `id`, `domain` (login), `password_hash`, `name`, `deploy_hook_url` |
-| `projects` | Per-client content rows. `status` is `'current'` or `'completed'` — flipping it moves the project between the two sections of the client's site. `hero_image` is the key image (thumbnail/cover photo); it defaults to the first uploaded photo but the client can pick any photo from `images[]` as the key image from the Projects tab. |
+| `projects` | Per-client content rows. `status` (`'current'`/`'completed'`) and `phase` (`'under_construction'`/`'in_pipeline'`, null when completed) together form the three **stages** the client picks from — see below. `hero_image` is the key image (thumbnail/cover photo); it defaults to the first uploaded photo but the client can pick any photo from `images[]` as the key image from the Projects tab. |
 | `team_members` | Per-client team bios (`name`, `title`, `photo`, `bio[]`, `education[]`, `personal`, `sort_order`). Added for Mission Properties as the first example of a second content shape — see note below. |
 | `client-files` bucket | **Private.** Arbitrary file drop (Files tab). Served via signed URLs. |
 | `project-media` bucket | **Public.** Project photos — must be publicly readable so they render on the client's live site. |
@@ -161,7 +181,8 @@ Set these in **both** `.env.local` *and* the Vercel project settings. Vercel doe
 ## The client's workflow, once set up
 
 1. Log into `/portal` with their domain + password.
-2. **Projects** tab — add/edit projects, upload photos, toggle Current ↔ Completed. Hovering
+2. **Projects** tab — add/edit projects, upload photos, and set each project's stage
+   (In the Pipeline / In Construction / Completed) from the segmented control. Hovering
    a photo shows a star button to set it as the key image (used as the project's
    thumbnail/cover photo); the current key image is marked with a purple ring and a
    "Key image" badge. Saves to Supabase immediately.

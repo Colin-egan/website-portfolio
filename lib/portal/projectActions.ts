@@ -4,15 +4,22 @@ import { revalidatePath } from "next/cache";
 import convert from "heic-convert";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSession } from "@/lib/portal/session";
+import {
+  columnsForStage,
+  parseStage,
+  type ProjectPhase,
+  type ProjectStatus,
+} from "@/lib/portal/projectStages";
 
 const BUCKET = "project-media";
 
-export type ProjectStatus = "current" | "completed";
+export type { ProjectStatus, ProjectPhase, ProjectStage } from "./projectStages";
 
 export type Project = {
   id: string;
   slug: string;
   status: ProjectStatus;
+  phase: ProjectPhase | null;
   name: string;
   location: string | null;
   address: string | null;
@@ -119,7 +126,6 @@ export async function upsertProjectAction(
     name,
     location: String(formData.get("location") || "") || null,
     address: String(formData.get("address") || "") || null,
-    status: (String(formData.get("status") || "current") as ProjectStatus),
     units: String(formData.get("units") || "") || null,
     unit_types: String(formData.get("unit_types") || "") || null,
     square_footage: String(formData.get("square_footage") || "") || null,
@@ -130,6 +136,9 @@ export async function upsertProjectAction(
   };
 
   if (id) {
+    // Stage is owned solely by setProjectStageAction. Writing status/phase here
+    // would reset a completed project back to current whenever its details are
+    // saved, since this form no longer carries those columns.
     const { error } = await supabase
       .from("projects")
       .update({ ...fields, updated_at: new Date().toISOString() })
@@ -139,8 +148,10 @@ export async function upsertProjectAction(
     if (error) return { error: "Failed to update project." };
   } else {
     const slug = slugify(name);
+    const stage = parseStage(formData.get("stage")) ?? "construction";
     const { error } = await supabase.from("projects").insert({
       ...fields,
+      ...columnsForStage(stage),
       client_id: session.clientId,
       slug,
     });
@@ -183,14 +194,17 @@ export async function deleteProjectAction(id: string) {
   revalidatePath("/portal");
 }
 
-export async function setProjectStatusAction(id: string, status: ProjectStatus) {
+export async function setProjectStageAction(id: string, formData: FormData) {
   const session = await getSession();
   if (!session) throw new Error("Not authenticated.");
+
+  const stage = parseStage(formData.get("stage"));
+  if (!stage) return;
 
   const supabase = getSupabaseAdmin();
   await supabase
     .from("projects")
-    .update({ status, updated_at: new Date().toISOString() })
+    .update({ ...columnsForStage(stage), updated_at: new Date().toISOString() })
     .eq("id", id)
     .eq("client_id", session.clientId);
 
