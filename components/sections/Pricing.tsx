@@ -38,7 +38,6 @@ const plans = [
     description: "We handle everything so you can focus on running your business.",
     features: [
       "Hosting oversight",
-      "Client portal access",
       "Content updates (up to 4/mo)",
       "Security monitoring",
       "Performance checks",
