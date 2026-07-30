@@ -13,6 +13,8 @@ import {
 } from "@/lib/portal/teamActions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { TeamPicksEditor } from "@/components/portal/TeamPicksEditor";
+import type { TeamPick } from "@/lib/portal/pickActions";
 
 const initialFormState: TeamFormState = { error: null };
 const initialUploadState: UploadTeamPhotoState = { error: null };
@@ -31,9 +33,11 @@ export type TeamVariant = "team" | "crew";
 export function TeamPanel({
   members,
   variant,
+  picks,
 }: {
   members: TeamMember[];
   variant: TeamVariant;
+  picks?: Record<string, TeamPick[]>;
 }) {
   const [addOpen, setAddOpen] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -83,6 +87,7 @@ export function TeamPanel({
               key={member.id}
               member={member}
               variant={variant}
+              picks={picks?.[member.id] ?? []}
               expanded={expandedId === member.id}
               onToggle={() => setExpandedId((id) => (id === member.id ? null : member.id))}
             />
@@ -96,11 +101,13 @@ export function TeamPanel({
 function TeamMemberRow({
   member,
   variant,
+  picks,
   expanded,
   onToggle,
 }: {
   member: TeamMember;
   variant: TeamVariant;
+  picks: TeamPick[];
   expanded: boolean;
   onToggle: () => void;
 }) {
@@ -202,6 +209,14 @@ function TeamMemberRow({
               <p className="text-sm text-destructive mt-2">{clientError ?? uploadState.error}</p>
             )}
           </div>
+
+          {variant === "crew" && (
+            <TeamPicksEditor
+              memberId={member.id}
+              memberName={member.name}
+              picks={picks}
+            />
+          )}
         </CardContent>
       )}
     </Card>

@@ -12,6 +12,7 @@ import { TeamPanel } from "@/components/portal/TeamPanel";
 import { FEATURE_LABELS, type Feature } from "@/lib/portal/features";
 import type { Project } from "@/lib/portal/projectActions";
 import type { TeamMember } from "@/lib/portal/teamActions";
+import type { TeamPick } from "@/lib/portal/pickActions";
 
 type FileEntry = { name: string; size: number; updatedAt: string | null };
 
@@ -20,6 +21,7 @@ export type PortalData = {
   projects: Project[];
   team: TeamMember[];
   publishEnabled: boolean;
+  picks: Record<string, TeamPick[]>;
 };
 
 export function PortalTabs({ features, data }: { features: Feature[]; data: PortalData }) {
@@ -32,7 +34,7 @@ export function PortalTabs({ features, data }: { features: Feature[]; data: Port
       <ProjectsPanel projects={data.projects} publishEnabled={data.publishEnabled} />
     ),
     team: () => <TeamPanel members={data.team} variant="team" />,
-    crew: () => <TeamPanel members={data.team} variant="crew" />,
+    crew: () => <TeamPanel members={data.team} variant="crew" picks={data.picks} />,
     new_this_week: () => null,
   };
 

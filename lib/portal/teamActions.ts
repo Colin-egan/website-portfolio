@@ -150,6 +150,21 @@ export async function deleteTeamMemberAction(id: string) {
     if (path) await supabase.storage.from(BUCKET).remove([path]);
   }
 
+  // The FK cascade drops the pick rows, but not their storage objects.
+  const { data: picks } = await supabase
+    .from("team_picks")
+    .select("image")
+    .eq("team_member_id", id)
+    .eq("client_id", session.clientId);
+
+  const pickPaths = (picks ?? [])
+    .map((p) => extractStoragePath(BUCKET, p.image))
+    .filter((p): p is string => p !== null);
+
+  if (pickPaths.length > 0) {
+    await supabase.storage.from(BUCKET).remove(pickPaths);
+  }
+
   await supabase.from("team_members").delete().eq("id", id).eq("client_id", session.clientId);
 
   revalidatePath("/portal");

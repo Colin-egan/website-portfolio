@@ -5,6 +5,7 @@ import { getSession } from "@/lib/portal/session";
 import { getClientFeatures } from "@/lib/portal/client";
 import { listProjects, canPublish } from "@/lib/portal/projectActions";
 import { listTeamMembers } from "@/lib/portal/teamActions";
+import { listTeamPicks } from "@/lib/portal/pickActions";
 import { PortalLogin } from "@/components/portal/PortalLogin";
 import { PortalTabs, type PortalData } from "@/components/portal/PortalTabs";
 
@@ -33,7 +34,7 @@ export default async function PortalPage() {
 
   // Only load what this client's flags call for — Memory Lane never queries
   // projects, and Mission Properties never queries the weekly tables.
-  const [files, projects, team, publishEnabled] = await Promise.all([
+  const [files, projects, team, publishEnabled, picks] = await Promise.all([
     features.includes("files")
       ? supabase.storage
           .from(BUCKET)
@@ -51,9 +52,10 @@ export default async function PortalPage() {
       ? listTeamMembers()
       : Promise.resolve([]),
     features.includes("projects") ? canPublish() : Promise.resolve(false),
+    features.includes("crew") ? listTeamPicks() : Promise.resolve({}),
   ]);
 
-  const data: PortalData = { files, projects, team, publishEnabled };
+  const data: PortalData = { files, projects, team, publishEnabled, picks };
 
   return (
     <>
