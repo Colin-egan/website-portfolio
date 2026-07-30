@@ -116,11 +116,17 @@ service role only, matching `projects`.
 |---|---|---|
 | `picks_url` | `text` | e.g. `/acespicks`. Null = crew card renders no picks link |
 | `shop_location` | `text` | `check (shop_location in ('original','part_two'))` |
-| `image_position` | `text` | `check (image_position in ('top','center')) default 'center'` |
+| `image_position` | `text` | `check (image_position in ('top','center'))` — **no DB default**, see below |
 
 `shop_location` stores semantics, not the `green`/`purple` the site currently passes to
 `CrewCard`. The mapping (`original` → green, `part_two` → purple) lives on the site, so brand
 colors stay out of the database.
+
+`image_position` is added **without** a database default. In Postgres,
+`ALTER TABLE ... ADD COLUMN ... DEFAULT 'center'` writes that value into every existing row,
+including Mission Properties'. Omitting the default leaves their rows genuinely untouched;
+the crew panel treats `null` as `center` in application code instead. The `check` constraints
+are safe on existing rows because `NULL` satisfies a `CHECK` in Postgres.
 
 Bio reuses the existing `bio text[]`. The crew variant shows one textarea and writes a
 single-element array. No new column, no data migration for Mission Properties.
@@ -218,6 +224,15 @@ the New This Week tab, delegating the scalar to `settings.ts`.
 Every action follows the established pattern: `getSession()` first, return
 `{ error: "Not authenticated." }` when absent, scope every query by `session.clientId`, and
 `revalidatePath("/portal")` on success.
+
+**`upsertTeamMemberAction` must become variant-aware, and this is a correctness requirement,
+not a nicety.** Today it rebuilds every field on every save: a missing `education` input
+becomes `parseList(null)` → `[]`, which overwrites whatever was there. That is harmless while
+one form owns every field, but the moment a second variant posts a different subset, any field
+the form omits is silently wiped. The action must build its update object from only the keys
+its variant owns and leave the rest absent from the `update()` call — so a crew save can never
+touch `education` or `personal`, and a team save can never touch `picks_url` or
+`shop_location`.
 
 ### Video URL handling
 
@@ -344,6 +359,61 @@ render correctly with zero pics from day one.
 Tyler is in neither the crew array nor the migration — `/tylerspicks` is an orphan route. Left
 as-is; deleting it is out of scope.
 
+## Protecting Mission Properties' data
+
+Mission Properties is live. Nothing in this work may corrupt, overwrite, or delete any of
+their rows or storage objects. Most of the design cannot touch them — `team_picks`,
+`weekly_pics`, `client_settings`, and the `weekly-media` bucket are new and empty, and every
+query is scoped by `client_id` from the verified session. The real exposure is in exactly
+three places, each with a specific guard.
+
+**1. The `imageUpload.ts` extraction — the largest risk in this plan.** It refactors
+`projectActions.ts` and `teamActions.ts`, which are the files that delete Mission Properties'
+storage objects today. `extractStoragePath` is the sharp edge: each current copy closes over
+its own module-level `BUCKET` constant, and the shared version takes the bucket as a
+parameter. Pass the wrong bucket and `deleteTeamMemberAction` or a project-image delete either
+silently fails or removes the wrong object.
+
+Guards: the extraction ships as its own commit that changes no behavior and adds no features;
+`extractStoragePath` returns `null` on any path it cannot parse (it already does) and callers
+must skip the `remove()` when it does, never falling back to a guessed path; and before any
+new feature is built on top, re-run the Mission Properties flows — upload and delete a project
+photo, upload and remove a team headshot — and confirm their remaining images still resolve.
+
+**2. The `clients.features` migration.** `ALTER TABLE ... ADD COLUMN features text[] DEFAULT
+'{}'` followed by a separate backfill leaves a window where Mission Properties parses to
+`{files}` and their Projects and Team tabs vanish. Their data would be intact but unreachable,
+which will read as data loss to anyone looking.
+
+Guard: the `ALTER` and both `UPDATE` backfills run in **one transaction**, so no deploy ever
+observes an un-backfilled row. Verify with a `select domain, features from clients` before
+committing.
+
+**3. The shared `TeamPanel` and its upsert.** Both clients write to the same `team_members`
+table. The crew variant stores a single-paragraph bio as a one-element array in the same
+`bio text[]` column that holds Mission Properties' multi-paragraph bios. A bug that routes
+their panel through the crew variant would collapse every bio to one paragraph on the next
+save — real, irreversible corruption of content the client wrote.
+
+Guards: `variant` is a required prop with no default, so a missing value is a TypeScript error
+rather than a silent fallback; the variant is derived from the client's own feature flags
+server-side, never from anything client-supplied; and the variant-scoped update described
+above means a crew save cannot write to a field the team variant owns, or vice versa.
+
+**Migration script.** `scripts/migrate-mlc.mjs` runs with the service-role key, which bypasses
+RLS entirely. It must assert `MLC_CLIENT_ID` matches
+`da08188d-b6de-4864-a5c5-7587101c64a8` and exit non-zero otherwise, hardcode that id into
+every insert, and contain no `update` or `delete` against `clients`, `projects`, or any
+`team_members` row it did not itself create.
+
+**Before any migration runs**, export the current `clients`, `team_members`, and `projects`
+rows to a timestamped JSON file kept outside the repo. Supabase's own point-in-time recovery
+is the real safety net, but a local dump costs nothing and makes a bad `UPDATE` a two-minute
+fix instead of a support ticket.
+
+**No existing RLS policy is modified.** New policies are added to new tables only; the
+policies on `projects` and `team_members` are left exactly as they are.
+
 ## Error handling
 
 | Condition | Behavior |
@@ -376,18 +446,31 @@ Manual, after deploying the portal and before wiring the site:
 3. Add a crew member, upload a photo, set shop and picks link, add two picks, reorder, delete one.
 4. Paste an Instagram reel URL, then a YouTube URL, then `javascript:alert(1)` — expect embed,
    link card, and inline rejection respectively.
-5. Upload weekly pics, reorder, delete all of them, confirm the homepage section hides cleanly.
+5. Upload weekly pics, reorder, delete all of them, confirm the homepage section renders
+   correctly with none.
 6. Confirm one client's session cannot read or write the other's rows.
+
+Mission Properties regression pass — run after step 2 and again after step 5, before anything
+new is built on top:
+
+1. Their Projects, Team, and Files tabs all load, with the same rows as before.
+2. Team bios still render as multiple paragraphs; Education and Personal are intact.
+3. Upload and delete a project photo; upload and remove a team headshot. Confirm the intended
+   object is gone from storage and every other image still resolves.
+4. Diff `clients`, `team_members`, and `projects` against the pre-migration JSON dump. The only
+   expected difference is the new `features` value.
 
 ## Sequencing
 
 1. Read the Next docs in each repo per `AGENTS.md`.
-2. Extract `lib/portal/imageUpload.ts`; confirm existing tabs still work.
-3. Migrations: `clients.features`, `team_members` columns, `team_picks`, `weekly_pics`,
-   `client_settings`, `weekly-media` bucket, RLS policies.
-4. Backfill `features` for both existing clients.
-5. `features.ts`, `client.ts`, feature-driven `PortalTabs` and `page.tsx`. Mission Properties
-   must be unchanged at this point.
+2. Dump `clients`, `team_members`, and `projects` to timestamped JSON outside the repo.
+3. Extract `lib/portal/imageUpload.ts`; run the Mission Properties regression pass. Ship this
+   on its own — it is a pure refactor of the code that deletes their storage objects.
+4. Migrations: `clients.features` (`ALTER` + both backfills in one transaction),
+   `team_members` columns, `team_picks`, `weekly_pics`, `client_settings`, `weekly-media`
+   bucket, RLS policies on new tables only.
+5. `features.ts`, `client.ts`, feature-driven `PortalTabs` and `page.tsx`, then the Mission
+   Properties regression pass again. Their portal must be indistinguishable from before.
 6. `TeamPanel` crew variant + `TeamPicksEditor` + `pickActions.ts`.
 7. `NewThisWeekPanel` + `WeeklyPicsGrid` + `weeklyActions.ts` + `settings.ts`.
 8. Deploy hook for the MLC Vercel project; set `clients.deploy_hook_url`.
