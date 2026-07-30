@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { createSession, destroySession, getSession } from "@/lib/portal/session";
+import { sanitizeFileName } from "@/lib/portal/imageUpload";
 
 const BUCKET = "client-files";
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
@@ -47,10 +48,6 @@ export async function loginAction(
 export async function logoutAction() {
   await destroySession();
   revalidatePath("/portal");
-}
-
-function sanitizeFileName(name: string) {
-  return name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 200);
 }
 
 export type UploadState = { error: string | null };

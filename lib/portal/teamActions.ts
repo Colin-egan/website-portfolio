@@ -1,9 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import convert from "heic-convert";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSession } from "@/lib/portal/session";
+import {
+  extractStoragePath,
+  prepareImageFile,
+  sanitizeFileName,
+} from "@/lib/portal/imageUpload";
 
 const BUCKET = "team-media";
 
@@ -122,62 +126,13 @@ export async function deleteTeamMemberAction(id: string) {
     .maybeSingle();
 
   if (member?.photo) {
-    const path = extractStoragePath(member.photo);
+    const path = extractStoragePath(BUCKET, member.photo);
     if (path) await supabase.storage.from(BUCKET).remove([path]);
   }
 
   await supabase.from("team_members").delete().eq("id", id).eq("client_id", session.clientId);
 
   revalidatePath("/portal");
-}
-
-function sanitizeFileName(name: string) {
-  return name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 200);
-}
-
-function extractStoragePath(publicUrl: string): string | null {
-  const marker = `/object/public/${BUCKET}/`;
-  const idx = publicUrl.indexOf(marker);
-  if (idx === -1) return null;
-  return decodeURIComponent(publicUrl.slice(idx + marker.length));
-}
-
-const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
-const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"]);
-
-function isHeic(file: File) {
-  const name = file.name.toLowerCase();
-  return (
-    name.endsWith(".heic") ||
-    name.endsWith(".heif") ||
-    file.type === "image/heic" ||
-    file.type === "image/heif"
-  );
-}
-
-async function convertHeicToJpeg(file: File): Promise<File> {
-  const inputBuffer = Buffer.from(await file.arrayBuffer());
-  const outputBuffer = await convert({ buffer: inputBuffer, format: "JPEG", quality: 0.92 });
-  const newName = file.name.replace(/\.(heic|heif)$/i, "") + ".jpg";
-  return new File([new Uint8Array(outputBuffer)], newName, { type: "image/jpeg" });
-}
-
-async function prepareImageFile(file: File): Promise<{ file: File; error: null } | { file: null; error: string }> {
-  if (file.size > MAX_IMAGE_BYTES) {
-    return { file: null, error: "Image is too large (max 20MB)." };
-  }
-  if (isHeic(file)) {
-    try {
-      return { file: await convertHeicToJpeg(file), error: null };
-    } catch (err) {
-      console.error("prepareImageFile: HEIC conversion failed", err);
-      return { file: null, error: "Couldn't convert this HEIC photo. Please export as JPEG and try again." };
-    }
-  }
-  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
-    return { file: null, error: "Unsupported image format. Please use JPEG, PNG, WebP, or GIF." };
-  }
-  return { file, error: null };
 }
 
 export type UploadTeamPhotoState = { error: string | null };
@@ -209,7 +164,7 @@ export async function uploadTeamPhotoAction(
 
   if (!member) return { error: "Team member not found." };
 
-  const previousPath = member.photo ? extractStoragePath(member.photo) : null;
+  const previousPath = member.photo ? extractStoragePath(BUCKET, member.photo) : null;
 
   const safeName = sanitizeFileName(file.name);
   const path = `${session.clientId}/${member.slug}/${Date.now()}-${safeName}`;
@@ -254,7 +209,7 @@ export async function removeTeamPhotoAction(memberId: string) {
     .update({ photo: null, updated_at: new Date().toISOString() })
     .eq("id", memberId);
 
-  const path = extractStoragePath(member.photo);
+  const path = extractStoragePath(BUCKET, member.photo);
   if (path) await supabase.storage.from(BUCKET).remove([path]);
 
   revalidatePath("/portal");
