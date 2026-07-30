@@ -6,6 +6,7 @@ import { getClientFeatures } from "@/lib/portal/client";
 import { listProjects, canPublish } from "@/lib/portal/projectActions";
 import { listTeamMembers } from "@/lib/portal/teamActions";
 import { listTeamPicks } from "@/lib/portal/pickActions";
+import { listWeeklyPics, getWeeklyVideoUrl } from "@/lib/portal/weeklyActions";
 import { PortalLogin } from "@/components/portal/PortalLogin";
 import { PortalTabs, type PortalData } from "@/components/portal/PortalTabs";
 
@@ -34,28 +35,39 @@ export default async function PortalPage() {
 
   // Only load what this client's flags call for — Memory Lane never queries
   // projects, and Mission Properties never queries the weekly tables.
-  const [files, projects, team, publishEnabled, picks] = await Promise.all([
-    features.includes("files")
-      ? supabase.storage
-          .from(BUCKET)
-          .list(session.clientId, { sortBy: { column: "created_at", order: "desc" } })
-          .then(({ data }) =>
-            (data ?? []).map((f) => ({
-              name: f.name,
-              size: f.metadata?.size ?? 0,
-              updatedAt: f.updated_at ?? null,
-            }))
-          )
-      : Promise.resolve([]),
-    features.includes("projects") ? listProjects() : Promise.resolve([]),
-    features.includes("team") || features.includes("crew")
-      ? listTeamMembers()
-      : Promise.resolve([]),
-    features.includes("projects") ? canPublish() : Promise.resolve(false),
-    features.includes("crew") ? listTeamPicks() : Promise.resolve({}),
-  ]);
+  const [files, projects, team, publishEnabled, picks, weeklyPics, weeklyVideoUrl] =
+    await Promise.all([
+      features.includes("files")
+        ? supabase.storage
+            .from(BUCKET)
+            .list(session.clientId, { sortBy: { column: "created_at", order: "desc" } })
+            .then(({ data }) =>
+              (data ?? []).map((f) => ({
+                name: f.name,
+                size: f.metadata?.size ?? 0,
+                updatedAt: f.updated_at ?? null,
+              }))
+            )
+        : Promise.resolve([]),
+      features.includes("projects") ? listProjects() : Promise.resolve([]),
+      features.includes("team") || features.includes("crew")
+        ? listTeamMembers()
+        : Promise.resolve([]),
+      features.includes("projects") ? canPublish() : Promise.resolve(false),
+      features.includes("crew") ? listTeamPicks() : Promise.resolve({}),
+      features.includes("new_this_week") ? listWeeklyPics() : Promise.resolve([]),
+      features.includes("new_this_week") ? getWeeklyVideoUrl() : Promise.resolve(null),
+    ]);
 
-  const data: PortalData = { files, projects, team, publishEnabled, picks };
+  const data: PortalData = {
+    files,
+    projects,
+    team,
+    publishEnabled,
+    picks,
+    weeklyPics,
+    weeklyVideoUrl,
+  };
 
   return (
     <>

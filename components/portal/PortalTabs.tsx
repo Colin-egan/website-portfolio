@@ -13,6 +13,8 @@ import { FEATURE_LABELS, type Feature } from "@/lib/portal/features";
 import type { Project } from "@/lib/portal/projectActions";
 import type { TeamMember } from "@/lib/portal/teamActions";
 import type { TeamPick } from "@/lib/portal/pickActions";
+import type { WeeklyPic } from "@/lib/portal/weeklyActions";
+import { NewThisWeekPanel } from "@/components/portal/NewThisWeekPanel";
 
 type FileEntry = { name: string; size: number; updatedAt: string | null };
 
@@ -22,6 +24,8 @@ export type PortalData = {
   team: TeamMember[];
   publishEnabled: boolean;
   picks: Record<string, TeamPick[]>;
+  weeklyPics: WeeklyPic[];
+  weeklyVideoUrl: string | null;
 };
 
 export function PortalTabs({ features, data }: { features: Feature[]; data: PortalData }) {
@@ -35,7 +39,9 @@ export function PortalTabs({ features, data }: { features: Feature[]; data: Port
     ),
     team: () => <TeamPanel members={data.team} variant="team" />,
     crew: () => <TeamPanel members={data.team} variant="crew" picks={data.picks} />,
-    new_this_week: () => null,
+    new_this_week: () => (
+      <NewThisWeekPanel pics={data.weeklyPics} videoUrl={data.weeklyVideoUrl} />
+    ),
   };
 
   return (
