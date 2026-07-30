@@ -21,6 +21,9 @@ export type TeamMember = {
   education: string[] | null;
   personal: string | null;
   sort_order: number;
+  picks_url: string | null;
+  shop_location: "original" | "part_two" | null;
+  image_position: "top" | "center" | null;
 };
 
 function slugify(name: string) {
@@ -74,13 +77,30 @@ export async function upsertTeamMemberAction(
 
   const supabase = getSupabaseAdmin();
 
-  const fields = {
+  const variant = String(formData.get("variant") || "team");
+
+  // Only the keys this variant owns. A crew save must never touch education or
+  // personal, and a team save must never touch picks_url or shop_location —
+  // anything absent here is left alone rather than overwritten with an empty value.
+  const shared = {
     name,
     title: String(formData.get("title") || "") || null,
     bio: parseParagraphs(formData.get("bio")),
-    education: parseList(formData.get("education")),
-    personal: String(formData.get("personal") || "") || null,
   };
+
+  const fields =
+    variant === "crew"
+      ? {
+          ...shared,
+          picks_url: String(formData.get("picks_url") || "") || null,
+          shop_location: String(formData.get("shop_location") || "") || null,
+          image_position: String(formData.get("image_position") || "") || null,
+        }
+      : {
+          ...shared,
+          education: parseList(formData.get("education")),
+          personal: String(formData.get("personal") || "") || null,
+        };
 
   if (id) {
     const { error } = await supabase

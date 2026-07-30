@@ -26,32 +26,46 @@ function getImageValidationError(file: File): string | null {
   return null;
 }
 
-export function TeamPanel({ members }: { members: TeamMember[] }) {
+export type TeamVariant = "team" | "crew";
+
+export function TeamPanel({
+  members,
+  variant,
+}: {
+  members: TeamMember[];
+  variant: TeamVariant;
+}) {
   const [addOpen, setAddOpen] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const noun = variant === "crew" ? "crew member" : "team member";
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-display font-bold">Team</h2>
+          <h2 className="text-lg font-display font-bold">
+            {variant === "crew" ? "The Crew" : "Team"}
+          </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Add team members, edit bios, and upload headshots.
+            {variant === "crew"
+              ? "Add crew members, edit bios, and upload photos."
+              : "Add team members, edit bios, and upload headshots."}
           </p>
         </div>
         <Button size="sm" onClick={() => setAddOpen((v) => !v)}>
           <Plus size={14} />
-          Add team member
+          Add {noun}
         </Button>
       </div>
 
       {addOpen && (
         <Card className="p-2">
           <CardHeader>
-            <CardTitle className="text-base">New team member</CardTitle>
+            <CardTitle className="text-base">New {noun}</CardTitle>
           </CardHeader>
           <CardContent>
-            <TeamMemberForm onDone={() => setAddOpen(false)} />
+            <TeamMemberForm variant={variant} onDone={() => setAddOpen(false)} />
           </CardContent>
         </Card>
       )}
@@ -59,7 +73,7 @@ export function TeamPanel({ members }: { members: TeamMember[] }) {
       {members.length === 0 ? (
         <Card className="p-2">
           <CardContent>
-            <p className="text-sm text-muted-foreground py-4">No team members yet.</p>
+            <p className="text-sm text-muted-foreground py-4">No {noun}s yet.</p>
           </CardContent>
         </Card>
       ) : (
@@ -68,6 +82,7 @@ export function TeamPanel({ members }: { members: TeamMember[] }) {
             <TeamMemberRow
               key={member.id}
               member={member}
+              variant={variant}
               expanded={expandedId === member.id}
               onToggle={() => setExpandedId((id) => (id === member.id ? null : member.id))}
             />
@@ -80,10 +95,12 @@ export function TeamPanel({ members }: { members: TeamMember[] }) {
 
 function TeamMemberRow({
   member,
+  variant,
   expanded,
   onToggle,
 }: {
   member: TeamMember;
+  variant: TeamVariant;
   expanded: boolean;
   onToggle: () => void;
 }) {
@@ -125,12 +142,12 @@ function TeamMemberRow({
             <form action={deleteTeamMemberAction.bind(null, member.id)}>
               <Button type="submit" variant="destructive" size="sm">
                 <Trash2 size={14} />
-                Delete team member
+                Delete {variant === "crew" ? "crew member" : "team member"}
               </Button>
             </form>
           </div>
 
-          <TeamMemberForm member={member} />
+          <TeamMemberForm member={member} variant={variant} />
 
           <div>
             <h4 className="text-sm font-medium mb-3">Photo</h4>
@@ -191,7 +208,15 @@ function TeamMemberRow({
   );
 }
 
-function TeamMemberForm({ member, onDone }: { member?: TeamMember; onDone?: () => void }) {
+function TeamMemberForm({
+  member,
+  variant,
+  onDone,
+}: {
+  member?: TeamMember;
+  variant: TeamVariant;
+  onDone?: () => void;
+}) {
   const action = async (prevState: TeamFormState, formData: FormData) => {
     const result = await upsertTeamMemberAction(prevState, formData);
     if (!result.error) onDone?.();
@@ -208,6 +233,7 @@ function TeamMemberForm({ member, onDone }: { member?: TeamMember; onDone?: () =
   return (
     <form action={formAction} className="flex flex-col gap-4">
       {member && <input type="hidden" name="id" value={member.id} />}
+      <input type="hidden" name="variant" value={variant} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="flex flex-col gap-1.5">
@@ -221,7 +247,9 @@ function TeamMemberForm({ member, onDone }: { member?: TeamMember; onDone?: () =
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className={label}>Bio (separate paragraphs with a blank line)</label>
+        <label className={label}>
+          {variant === "crew" ? "Bio" : "Bio (separate paragraphs with a blank line)"}
+        </label>
         <textarea
           name="bio"
           defaultValue={member?.bio?.join("\n\n") ?? ""}
@@ -230,31 +258,75 @@ function TeamMemberForm({ member, onDone }: { member?: TeamMember; onDone?: () =
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="flex flex-col gap-1.5">
-          <label className={label}>Education (one per line)</label>
-          <textarea
-            name="education"
-            defaultValue={member?.education?.join("\n") ?? ""}
-            rows={3}
-            className={textarea}
-          />
+      {variant === "crew" ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className={label}>Which shop</label>
+            <select
+              name="shop_location"
+              defaultValue={member?.shop_location ?? ""}
+              className={field}
+            >
+              <option value="">Not set</option>
+              <option value="original">201 Princess St.</option>
+              <option value="part_two">222 Princess St. (Part II)</option>
+            </select>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className={label}>Picks page link</label>
+            <input
+              name="picks_url"
+              defaultValue={member?.picks_url ?? ""}
+              placeholder="/acespicks"
+              className={field}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className={label}>Photo crop</label>
+            <select
+              name="image_position"
+              defaultValue={member?.image_position ?? ""}
+              className={field}
+            >
+              <option value="">Center</option>
+              <option value="top">Top</option>
+              <option value="center">Center</option>
+            </select>
+          </div>
         </div>
-        <div className="flex flex-col gap-1.5">
-          <label className={label}>Personal note</label>
-          <textarea
-            name="personal"
-            defaultValue={member?.personal ?? ""}
-            rows={3}
-            className={textarea}
-          />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className={label}>Education (one per line)</label>
+            <textarea
+              name="education"
+              defaultValue={member?.education?.join("\n") ?? ""}
+              rows={3}
+              className={textarea}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className={label}>Personal note</label>
+            <textarea
+              name="personal"
+              defaultValue={member?.personal ?? ""}
+              rows={3}
+              className={textarea}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {state.error && <p className="text-sm text-destructive">{state.error}</p>}
 
       <Button type="submit" disabled={pending} className="self-start">
-        {pending ? "Saving..." : member ? "Save changes" : "Add team member"}
+        {pending
+          ? "Saving..."
+          : member
+            ? "Save changes"
+            : variant === "crew"
+              ? "Add crew member"
+              : "Add team member"}
       </Button>
     </form>
   );
