@@ -21,15 +21,18 @@ Prerequisite: [2026-07-30-memory-lane-portal.md](2026-07-30-memory-lane-portal.m
 - Existing static arrays and `public/images/` stay in the repo, unused, as a safety net.
 - Commit after every task.
 
-## Open decision, resolve before Task 4
+## Resolved: the picks hero image
 
-`/acespicks` renders a `PicksHero` using `IMAGES.acesHero` — a lifestyle photo distinct from the pick covers. **The portal has no field for it.** Options:
+`/acespicks` renders a `PicksHero` using `IMAGES.acesHero` — a lifestyle photo distinct from the
+pick covers — and the portal has no field for it.
 
-1. **Use the member's crew photo** (`team_members.photo`) as the hero. No schema change, and the portal already manages that image. Recommended.
-2. Drop the hero from picks pages entirely.
-3. Add a `hero_image` column to `team_members` and a portal upload for it.
+**Decision: reuse the member's crew photo** (`team_members.photo`). No schema change, and the
+portal already manages that image. Rejected: adding a `hero_image` column (reopens the finished
+portal phase) and dropping the hero (loses the visual identity those pages have).
 
-This plan assumes **option 1**. If you want 3, it belongs in the portal phase, not here.
+Consequence to expect: the crew photos are portrait headshots, so they will crop tighter in the
+hero slot than the current wide shot of Ace. If that looks bad in practice, the fix is a
+`hero_image` column, not a CSS workaround.
 
 ---
 
