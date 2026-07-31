@@ -112,8 +112,8 @@ git commit -m "Add a read-only Supabase client"
 - Consumes: `supabase`, `CLIENT_ID`
 - Produces:
   - `getCrew(): Promise<CrewMember[]>` where `CrewMember = { name, title, bio, picksUrl?, imageUrl?, imagePosition, location }` — the existing `CrewCard` prop shape
-  - `getPicks(slug: string): Promise<{ member: CrewMember & { slug: string } | null; picks: { imageUrl: string; alt: string; title: string }[] }>`
-  - `getWeeklyPics(): Promise<{ image: string; title: string; caption: string | null }[]>`
+  - `getPicks(slug: string): Promise<{ member: CrewMember & { slug: string } | null; picks: { imageUrl: string; alt: string; title: string; href: string }[] }>`
+  - `getWeeklyPics(): Promise<{ image: string; title: string; caption: string | null; href: string }[]>`
   - `getWeeklyVideoUrl(): Promise<string | null>`
   - `classifyVideoUrl(url: string | null): { kind: 'none' } | { kind: 'instagram'; url: string } | { kind: 'link'; url: string }`
 
@@ -180,8 +180,9 @@ export async function getCrew(): Promise<CrewMember[]> {
 ```ts
 import { supabase, CLIENT_ID } from '@/lib/supabase'
 import { toCrewMember, type CrewMember } from '@/lib/crew'
+import { EXTERNAL_URLS } from '@/lib/tokens'
 
-export type Pick = { imageUrl: string; alt: string; title: string }
+export type Pick = { imageUrl: string; alt: string; title: string; href: string }
 
 export async function getPicks(
   slug: string
@@ -197,7 +198,7 @@ export async function getPicks(
 
   const { data: pickRows } = await supabase
     .from('team_picks')
-    .select('image, title, sort_order')
+    .select('image, title, link_url, sort_order')
     .eq('client_id', CLIENT_ID)
     .eq('team_member_id', memberRow.id)
     .order('sort_order', { ascending: true })
@@ -211,6 +212,8 @@ export async function getPicks(
       // Alt text is derived, never hand-entered — this is why title is required.
       alt: `${p.title} — pick by ${member.name}`,
       title: p.title,
+      // Per-item shop link when the crew set one, else the general storefront.
+      href: p.link_url ?? EXTERNAL_URLS.comichub,
     })),
   }
 }
@@ -220,13 +223,20 @@ export async function getPicks(
 
 ```ts
 import { supabase, CLIENT_ID } from '@/lib/supabase'
+import { EXTERNAL_URLS } from '@/lib/tokens'
 
-export type WeeklyPic = { image: string; title: string; caption: string | null; alt: string }
+export type WeeklyPic = {
+  image: string
+  title: string
+  caption: string | null
+  alt: string
+  href: string
+}
 
 export async function getWeeklyPics(): Promise<WeeklyPic[]> {
   const { data } = await supabase
     .from('weekly_pics')
-    .select('image, title, caption, sort_order')
+    .select('image, title, caption, link_url, sort_order')
     .eq('client_id', CLIENT_ID)
     .order('sort_order', { ascending: true })
 
@@ -235,6 +245,7 @@ export async function getWeeklyPics(): Promise<WeeklyPic[]> {
     title: p.title,
     caption: p.caption,
     alt: `${p.title} — new this week at Memory Lane Comics`,
+    href: p.link_url ?? EXTERNAL_URLS.comichub,
   }))
 }
 
@@ -353,6 +364,30 @@ git commit -m "Read the crew from Supabase"
 **Files:**
 - Create: `src/components/PicksPage.tsx`
 - Modify: all seven of `src/app/{acespicks,jakespics,benspicks,petapicks,seanspicks,tylerspicks,ericspicks}/page.tsx`
+
+- [ ] **Step 0: Make `ProductGrid` honour per-item links**
+
+`src/components/ProductGrid.tsx:20` hardcodes every card to `EXTERNAL_URLS.comichub`, so
+without this change the per-item ComicHub links stored in `team_picks.link_url` are ignored.
+
+Add `href` to the `Product` type and use it, falling back to the storefront:
+
+```tsx
+type Product = {
+  imageUrl: string
+  alt: string
+  title?: string
+  href?: string
+}
+```
+
+then in the map, replace `href={EXTERNAL_URLS.comichub}` with:
+
+```tsx
+          href={product.href ?? EXTERNAL_URLS.comichub}
+```
+
+The `aria-label` already reads "Shop {title} on ComicHub", which stays accurate.
 
 - [ ] **Step 1: Write `src/components/PicksPage.tsx`**
 
@@ -501,23 +536,31 @@ export function WeeklyPics({ pics }: { pics: WeeklyPic[] }) {
           key={pic.image}
           className="border-2 border-brand-black rounded-comic overflow-hidden bg-white shadow-card"
         >
-          <div className="relative aspect-[2/3] bg-brand-off-white">
-            <Image
-              src={pic.image}
-              alt={pic.alt}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 50vw, 25vw"
-            />
-          </div>
-          <div className="p-2">
-            <p className="font-display tracking-comic text-brand-black text-xs uppercase truncate">
-              {pic.title}
-            </p>
-            {pic.caption && (
-              <p className="font-body text-brand-grey text-xs truncate">{pic.caption}</p>
-            )}
-          </div>
+          <a
+            href={pic.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green"
+            aria-label={`Shop ${pic.title} at Memory Lane Comics`}
+          >
+            <div className="relative aspect-[2/3] bg-brand-off-white">
+              <Image
+                src={pic.image}
+                alt={pic.alt}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                sizes="(max-width: 768px) 50vw, 25vw"
+              />
+            </div>
+            <div className="p-2">
+              <p className="font-display tracking-comic text-brand-black text-xs uppercase truncate">
+                {pic.title}
+              </p>
+              {pic.caption && (
+                <p className="font-body text-brand-grey text-xs truncate">{pic.caption}</p>
+              )}
+            </div>
+          </a>
         </li>
       ))}
     </ul>
