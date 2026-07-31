@@ -9,26 +9,39 @@ import { cn } from "@/lib/utils";
 import { PortalDashboard } from "@/components/portal/PortalDashboard";
 import { ProjectsPanel } from "@/components/portal/ProjectsPanel";
 import { TeamPanel } from "@/components/portal/TeamPanel";
+import { FEATURE_LABELS, type Feature } from "@/lib/portal/features";
 import type { Project } from "@/lib/portal/projectActions";
 import type { TeamMember } from "@/lib/portal/teamActions";
+import type { TeamPick } from "@/lib/portal/pickActions";
+import type { WeeklyPic } from "@/lib/portal/weeklyActions";
+import { NewThisWeekPanel } from "@/components/portal/NewThisWeekPanel";
+import { PublishButton } from "@/components/portal/PublishButton";
 
 type FileEntry = { name: string; size: number; updatedAt: string | null };
 
-const tabs = ["Files", "Projects", "Team"] as const;
-type Tab = (typeof tabs)[number];
-
-export function PortalTabs({
-  files,
-  projects,
-  team,
-  publishEnabled,
-}: {
+export type PortalData = {
   files: FileEntry[];
   projects: Project[];
   team: TeamMember[];
   publishEnabled: boolean;
-}) {
-  const [tab, setTab] = useState<Tab>("Files");
+  picks: Record<string, TeamPick[]>;
+  weeklyPics: WeeklyPic[];
+  weeklyVideoUrl: string | null;
+};
+
+export function PortalTabs({ features, data }: { features: Feature[]; data: PortalData }) {
+  const [tab, setTab] = useState<Feature>(features[0] ?? "files");
+  const active = features.includes(tab) ? tab : (features[0] ?? "files");
+
+  const panels: Record<Feature, () => React.ReactNode> = {
+    files: () => <PortalDashboard files={data.files} />,
+    projects: () => <ProjectsPanel projects={data.projects} />,
+    team: () => <TeamPanel members={data.team} variant="team" />,
+    crew: () => <TeamPanel members={data.team} variant="crew" picks={data.picks} />,
+    new_this_week: () => (
+      <NewThisWeekPanel pics={data.weeklyPics} videoUrl={data.weeklyVideoUrl} />
+    ),
+  };
 
   return (
     <section className="max-w-3xl mx-auto px-6 py-20">
@@ -40,38 +53,35 @@ export function PortalTabs({
       >
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-display font-bold">Client Portal</h1>
-          <form action={logoutAction}>
-            <Button type="submit" variant="outline" size="sm">
-              <LogOut size={14} />
-              Log out
-            </Button>
-          </form>
+          <div className="flex items-start gap-2">
+            {data.publishEnabled && <PublishButton />}
+            <form action={logoutAction}>
+              <Button type="submit" variant="outline" size="sm">
+                <LogOut size={14} />
+                Log out
+              </Button>
+            </form>
+          </div>
         </div>
 
         <div className="flex gap-1 border-b border-border">
-          {tabs.map((t) => (
+          {features.map((f) => (
             <button
-              key={t}
-              onClick={() => setTab(t)}
+              key={f}
+              onClick={() => setTab(f)}
               className={cn(
                 "px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px",
-                tab === t
+                active === f
                   ? "border-purple-500 text-foreground"
                   : "border-transparent text-muted-foreground hover:text-foreground"
               )}
             >
-              {t}
+              {FEATURE_LABELS[f]}
             </button>
           ))}
         </div>
 
-        {tab === "Files" ? (
-          <PortalDashboard files={files} />
-        ) : tab === "Projects" ? (
-          <ProjectsPanel projects={projects} publishEnabled={publishEnabled} />
-        ) : (
-          <TeamPanel members={team} />
-        )}
+        {panels[active]()}
       </motion.div>
     </section>
   );

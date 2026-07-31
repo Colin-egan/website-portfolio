@@ -1,26 +1,29 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Plus, Trash2, ImagePlus, ChevronDown, ChevronUp, Building2, UploadCloud, Star } from "lucide-react";
+import { Plus, Trash2, ImagePlus, ChevronDown, ChevronUp, Building2, Star } from "lucide-react";
 import {
   upsertProjectAction,
   deleteProjectAction,
-  setProjectStatusAction,
+  setProjectStageAction,
   uploadProjectImageAction,
   removeProjectImageAction,
   setHeroImageAction,
-  publishAction,
   type Project,
   type ProjectFormState,
   type UploadProjectImageState,
-  type PublishState,
 } from "@/lib/portal/projectActions";
+import {
+  stageOf,
+  STAGES,
+  STAGE_LABELS,
+  type ProjectStage,
+} from "@/lib/portal/projectStages";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 const initialFormState: ProjectFormState = { error: null };
 const initialUploadState: UploadProjectImageState = { error: null };
-const initialPublishState: PublishState = { error: null, success: false };
 
 const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
 
@@ -31,19 +34,9 @@ function getImageValidationError(file: File): string | null {
   return null;
 }
 
-export function ProjectsPanel({
-  projects,
-  publishEnabled,
-}: {
-  projects: Project[];
-  publishEnabled: boolean;
-}) {
+export function ProjectsPanel({ projects }: { projects: Project[] }) {
   const [addOpen, setAddOpen] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [publishState, publishFormAction, publishPending] = useActionState(
-    publishAction,
-    initialPublishState
-  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -51,32 +44,15 @@ export function ProjectsPanel({
         <div>
           <h2 className="text-lg font-display font-bold">Projects</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Add properties, edit details, and move them between Current and Completed.
+            Add properties, edit details, and move them between In the Pipeline, Under
+            Construction, and Completed.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          {publishEnabled && (
-            <form action={publishFormAction}>
-              <Button type="submit" variant="outline" size="sm" disabled={publishPending}>
-                <UploadCloud size={14} />
-                {publishPending ? "Publishing..." : "Publish"}
-              </Button>
-            </form>
-          )}
-          <Button size="sm" onClick={() => setAddOpen((v) => !v)}>
-            <Plus size={14} />
-            Add project
-          </Button>
-        </div>
+        <Button size="sm" onClick={() => setAddOpen((v) => !v)}>
+          <Plus size={14} />
+          Add project
+        </Button>
       </div>
-
-      {publishEnabled && (publishState.success || publishState.error) && (
-        <p className={`text-sm ${publishState.success ? "text-purple-600" : "text-destructive"}`}>
-          {publishState.success
-            ? "Publish triggered — your changes will be live in a few minutes."
-            : publishState.error}
-        </p>
-      )}
 
       {addOpen && (
         <Card className="p-2">
@@ -150,7 +126,7 @@ function ProjectRow({
               {project.location || "No location set"}
             </CardDescription>
           </div>
-          <StatusBadge status={project.status} />
+          <StageBadge stage={stageOf(project)} />
           <Button variant="ghost" size="icon-sm" onClick={onToggle} aria-label="Toggle details">
             {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </Button>
@@ -159,18 +135,13 @@ function ProjectRow({
 
       {expanded && (
         <CardContent className="flex flex-col gap-6 mt-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <form
-              action={setProjectStatusAction.bind(
-                null,
-                project.id,
-                project.status === "current" ? "completed" : "current"
-              )}
-            >
-              <Button type="submit" variant="outline" size="sm">
-                Mark as {project.status === "current" ? "Completed" : "Current"}
-              </Button>
-            </form>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm text-muted-foreground">Stage</span>
+              <form action={setProjectStageAction.bind(null, project.id)}>
+                <StagePicker defaultStage={stageOf(project)} autoSubmit />
+              </form>
+            </div>
             <form action={deleteProjectAction.bind(null, project.id)}>
               <Button type="submit" variant="destructive" size="sm">
                 <Trash2 size={14} />
@@ -273,17 +244,69 @@ function ProjectRow({
   );
 }
 
-function StatusBadge({ status }: { status: Project["status"] }) {
+const STAGE_BADGE_STYLES: Record<ProjectStage, string> = {
+  pipeline: "bg-sky-500/10 text-sky-600",
+  construction: "bg-amber-500/10 text-amber-600",
+  completed: "bg-purple-600/10 text-purple-600",
+};
+
+function StageBadge({ stage }: { stage: ProjectStage }) {
   return (
     <span
-      className={`text-xs px-2 py-1 rounded-full font-medium shrink-0 ${
-        status === "completed"
-          ? "bg-purple-600/10 text-purple-600"
-          : "bg-amber-500/10 text-amber-600"
-      }`}
+      className={`text-xs px-2 py-1 rounded-full font-medium shrink-0 ${STAGE_BADGE_STYLES[stage]}`}
     >
-      {status === "completed" ? "Completed" : "Current"}
+      {STAGE_LABELS[stage]}
     </span>
+  );
+}
+
+/**
+ * Segmented three-way control backed by radio inputs, so it works both as a
+ * standalone auto-submitting form (existing projects) and as a plain field
+ * inside the new-project form.
+ */
+function StagePicker({
+  defaultStage,
+  autoSubmit = false,
+}: {
+  defaultStage: ProjectStage;
+  autoSubmit?: boolean;
+}) {
+  const [selected, setSelected] = useState<ProjectStage>(defaultStage);
+
+  return (
+    <div
+      role="radiogroup"
+      aria-label="Project stage"
+      className="inline-flex flex-wrap gap-0.5 rounded-lg border border-border bg-muted/40 p-0.5"
+    >
+      {STAGES.map((stage) => {
+        const active = selected === stage;
+        return (
+          <label
+            key={stage}
+            className={`cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors focus-within:ring-3 focus-within:ring-ring/50 ${
+              active
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <input
+              type="radio"
+              name="stage"
+              value={stage}
+              defaultChecked={defaultStage === stage}
+              className="sr-only"
+              onChange={(e) => {
+                setSelected(stage);
+                if (autoSubmit) e.currentTarget.form?.requestSubmit();
+              }}
+            />
+            {STAGE_LABELS[stage]}
+          </label>
+        );
+      })}
+    </div>
   );
 }
 
@@ -301,7 +324,15 @@ function ProjectForm({ project, onDone }: { project?: Project; onDone?: () => vo
   return (
     <form action={formAction} className="flex flex-col gap-4">
       {project && <input type="hidden" name="id" value={project.id} />}
-      <input type="hidden" name="status" value={project?.status ?? "current"} />
+
+      {/* Existing projects set their stage from the row control above, which
+          saves on its own — this form deliberately doesn't touch it. */}
+      {!project && (
+        <div className="flex flex-col gap-1.5">
+          <label className={label}>Stage</label>
+          <StagePicker defaultStage="construction" />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="flex flex-col gap-1.5">
