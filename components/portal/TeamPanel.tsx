@@ -7,6 +7,8 @@ import {
   deleteTeamMemberAction,
   uploadTeamPhotoAction,
   removeTeamPhotoAction,
+  uploadTeamHeroAction,
+  removeTeamHeroAction,
   type TeamMember,
   type TeamFormState,
   type UploadTeamPhotoState,
@@ -111,12 +113,6 @@ function TeamMemberRow({
   expanded: boolean;
   onToggle: () => void;
 }) {
-  const [uploadState, uploadFormAction, uploadPending] = useActionState(
-    uploadTeamPhotoAction,
-    initialUploadState
-  );
-  const [clientError, setClientError] = useState<string | null>(null);
-
   return (
     <Card className="p-2">
       <CardHeader>
@@ -156,59 +152,33 @@ function TeamMemberRow({
 
           <TeamMemberForm member={member} variant={variant} />
 
-          <div>
-            <h4 className="text-sm font-medium mb-3">Photo</h4>
-            {member.photo && (
-              <div className="relative group w-24 mb-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={member.photo}
-                  alt=""
-                  className="w-24 aspect-square object-cover rounded-lg"
-                />
-                <form action={removeTeamPhotoAction.bind(null, member.id)}>
-                  <button
-                    type="submit"
-                    className="absolute top-1 right-1 size-6 rounded-full bg-background/90 flex items-center justify-center text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                    aria-label="Remove photo"
-                  >
-                    <Trash2 size={12} />
-                  </button>
-                </form>
-              </div>
-            )}
-            <form
-              action={uploadFormAction}
-              onSubmit={(e) => {
-                const input = e.currentTarget.elements.namedItem("file") as HTMLInputElement;
-                const file = input?.files?.[0];
-                const error = file ? getImageValidationError(file) : null;
-                if (error) {
-                  e.preventDefault();
-                  setClientError(error);
-                } else {
-                  setClientError(null);
-                }
-              }}
-              className="flex flex-col sm:flex-row gap-3"
-            >
-              <input type="hidden" name="memberId" value={member.id} />
-              <input
-                type="file"
-                name="file"
-                accept="image/*"
-                required
-                className="flex-1 text-sm text-muted-foreground file:mr-3 file:rounded-lg file:border-0 file:bg-purple-600 file:px-3 file:py-1.5 file:text-sm file:text-white file:font-medium hover:file:bg-purple-500 file:transition-colors"
-              />
-              <Button type="submit" size="sm" disabled={uploadPending}>
-                <ImagePlus size={14} />
-                {uploadPending ? "Uploading..." : member.photo ? "Replace photo" : "Add photo"}
-              </Button>
-            </form>
-            {(clientError || uploadState.error) && (
-              <p className="text-sm text-destructive mt-2">{clientError ?? uploadState.error}</p>
-            )}
-          </div>
+          <MemberImageUploader
+            memberId={member.id}
+            currentUrl={member.photo}
+            heading="Photo"
+            description={
+              variant === "crew"
+                ? "Square headshot used on the crew card."
+                : "Square headshot used on the team page."
+            }
+            noun="photo"
+            previewClassName="w-24 aspect-square"
+            uploadAction={uploadTeamPhotoAction}
+            removeAction={removeTeamPhotoAction}
+          />
+
+          {variant === "crew" && (
+            <MemberImageUploader
+              memberId={member.id}
+              currentUrl={member.hero_image}
+              heading="Header image"
+              description="Wide banner behind the name on this person's picks page. Landscape works best — roughly 3:1 or wider. Falls back to the photo when empty."
+              noun="header image"
+              previewClassName="w-full max-w-sm aspect-[3/1]"
+              uploadAction={uploadTeamHeroAction}
+              removeAction={removeTeamHeroAction}
+            />
+          )}
 
           {variant === "crew" && (
             <TeamPicksEditor
@@ -220,6 +190,95 @@ function TeamMemberRow({
         </CardContent>
       )}
     </Card>
+  );
+}
+
+function MemberImageUploader({
+  memberId,
+  currentUrl,
+  heading,
+  description,
+  noun,
+  previewClassName,
+  uploadAction,
+  removeAction,
+}: {
+  memberId: string;
+  currentUrl: string | null;
+  heading: string;
+  description: string;
+  noun: string;
+  previewClassName: string;
+  uploadAction: (
+    prevState: UploadTeamPhotoState,
+    formData: FormData
+  ) => Promise<UploadTeamPhotoState>;
+  removeAction: (memberId: string) => Promise<void>;
+}) {
+  const [uploadState, uploadFormAction, uploadPending] = useActionState(
+    uploadAction,
+    initialUploadState
+  );
+  const [clientError, setClientError] = useState<string | null>(null);
+
+  return (
+    <div>
+      <h4 className="text-sm font-medium">{heading}</h4>
+      <p className="text-xs text-muted-foreground mt-1 mb-3">{description}</p>
+
+      {currentUrl && (
+        <div className={`relative group mb-3 ${previewClassName}`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={currentUrl}
+            alt=""
+            className="w-full h-full object-cover rounded-lg"
+          />
+          <form action={removeAction.bind(null, memberId)}>
+            <button
+              type="submit"
+              className="absolute top-1 right-1 size-6 rounded-full bg-background/90 flex items-center justify-center text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+              aria-label={`Remove ${noun}`}
+            >
+              <Trash2 size={12} />
+            </button>
+          </form>
+        </div>
+      )}
+
+      <form
+        action={uploadFormAction}
+        onSubmit={(e) => {
+          const input = e.currentTarget.elements.namedItem("file") as HTMLInputElement;
+          const file = input?.files?.[0];
+          const error = file ? getImageValidationError(file) : null;
+          if (error) {
+            e.preventDefault();
+            setClientError(error);
+          } else {
+            setClientError(null);
+          }
+        }}
+        className="flex flex-col sm:flex-row gap-3"
+      >
+        <input type="hidden" name="memberId" value={memberId} />
+        <input
+          type="file"
+          name="file"
+          accept="image/*"
+          required
+          className="flex-1 text-sm text-muted-foreground file:mr-3 file:rounded-lg file:border-0 file:bg-purple-600 file:px-3 file:py-1.5 file:text-sm file:text-white file:font-medium hover:file:bg-purple-500 file:transition-colors"
+        />
+        <Button type="submit" size="sm" disabled={uploadPending}>
+          <ImagePlus size={14} />
+          {uploadPending ? "Uploading..." : currentUrl ? `Replace ${noun}` : `Add ${noun}`}
+        </Button>
+      </form>
+
+      {(clientError || uploadState.error) && (
+        <p className="text-sm text-destructive mt-2">{clientError ?? uploadState.error}</p>
+      )}
+    </div>
   );
 }
 
