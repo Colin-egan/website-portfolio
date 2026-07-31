@@ -53,7 +53,9 @@ export default async function PortalPage() {
       features.includes("team") || features.includes("crew")
         ? listTeamMembers()
         : Promise.resolve([]),
-      features.includes("projects") ? canPublish() : Promise.resolve(false),
+      // Not gated on any feature — publishing rebuilds the whole site, so any client
+      // with a deploy hook gets the button regardless of which tabs they have.
+      canPublish(),
       features.includes("crew") ? listTeamPicks() : Promise.resolve({}),
       features.includes("new_this_week") ? listWeeklyPics() : Promise.resolve([]),
       features.includes("new_this_week") ? getWeeklyVideoUrl() : Promise.resolve(null),

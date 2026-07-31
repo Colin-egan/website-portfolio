@@ -15,6 +15,7 @@ import type { TeamMember } from "@/lib/portal/teamActions";
 import type { TeamPick } from "@/lib/portal/pickActions";
 import type { WeeklyPic } from "@/lib/portal/weeklyActions";
 import { NewThisWeekPanel } from "@/components/portal/NewThisWeekPanel";
+import { PublishButton } from "@/components/portal/PublishButton";
 
 type FileEntry = { name: string; size: number; updatedAt: string | null };
 
@@ -34,9 +35,7 @@ export function PortalTabs({ features, data }: { features: Feature[]; data: Port
 
   const panels: Record<Feature, () => React.ReactNode> = {
     files: () => <PortalDashboard files={data.files} />,
-    projects: () => (
-      <ProjectsPanel projects={data.projects} publishEnabled={data.publishEnabled} />
-    ),
+    projects: () => <ProjectsPanel projects={data.projects} />,
     team: () => <TeamPanel members={data.team} variant="team" />,
     crew: () => <TeamPanel members={data.team} variant="crew" picks={data.picks} />,
     new_this_week: () => (
@@ -54,12 +53,15 @@ export function PortalTabs({ features, data }: { features: Feature[]; data: Port
       >
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-display font-bold">Client Portal</h1>
-          <form action={logoutAction}>
-            <Button type="submit" variant="outline" size="sm">
-              <LogOut size={14} />
-              Log out
-            </Button>
-          </form>
+          <div className="flex items-start gap-2">
+            {data.publishEnabled && <PublishButton />}
+            <form action={logoutAction}>
+              <Button type="submit" variant="outline" size="sm">
+                <LogOut size={14} />
+                Log out
+              </Button>
+            </form>
+          </div>
         </div>
 
         <div className="flex gap-1 border-b border-border">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Plus, Trash2, ImagePlus, ChevronDown, ChevronUp, Building2, UploadCloud, Star } from "lucide-react";
+import { Plus, Trash2, ImagePlus, ChevronDown, ChevronUp, Building2, Star } from "lucide-react";
 import {
   upsertProjectAction,
   deleteProjectAction,
@@ -9,11 +9,9 @@ import {
   uploadProjectImageAction,
   removeProjectImageAction,
   setHeroImageAction,
-  publishAction,
   type Project,
   type ProjectFormState,
   type UploadProjectImageState,
-  type PublishState,
 } from "@/lib/portal/projectActions";
 import {
   stageOf,
@@ -26,7 +24,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 
 const initialFormState: ProjectFormState = { error: null };
 const initialUploadState: UploadProjectImageState = { error: null };
-const initialPublishState: PublishState = { error: null, success: false };
 
 const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
 
@@ -37,19 +34,9 @@ function getImageValidationError(file: File): string | null {
   return null;
 }
 
-export function ProjectsPanel({
-  projects,
-  publishEnabled,
-}: {
-  projects: Project[];
-  publishEnabled: boolean;
-}) {
+export function ProjectsPanel({ projects }: { projects: Project[] }) {
   const [addOpen, setAddOpen] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [publishState, publishFormAction, publishPending] = useActionState(
-    publishAction,
-    initialPublishState
-  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -61,29 +48,11 @@ export function ProjectsPanel({
             Construction, and Completed.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          {publishEnabled && (
-            <form action={publishFormAction}>
-              <Button type="submit" variant="outline" size="sm" disabled={publishPending}>
-                <UploadCloud size={14} />
-                {publishPending ? "Publishing..." : "Publish"}
-              </Button>
-            </form>
-          )}
-          <Button size="sm" onClick={() => setAddOpen((v) => !v)}>
-            <Plus size={14} />
-            Add project
-          </Button>
-        </div>
+        <Button size="sm" onClick={() => setAddOpen((v) => !v)}>
+          <Plus size={14} />
+          Add project
+        </Button>
       </div>
-
-      {publishEnabled && (publishState.success || publishState.error) && (
-        <p className={`text-sm ${publishState.success ? "text-purple-600" : "text-destructive"}`}>
-          {publishState.success
-            ? "Publish triggered — your changes will be live in a few minutes."
-            : publishState.error}
-        </p>
-      )}
 
       {addOpen && (
         <Card className="p-2">
