@@ -20,6 +20,32 @@ build time.
   **Publish** button in the Projects tab POSTs to it, rebuilding the client's site so it
   picks up the latest Supabase content.
 
+### Per-client tabs
+
+Which tabs a client sees comes from `clients.features`, a `text[]`. The flag-to-panel mapping
+lives in [lib/portal/features.ts](lib/portal/features.ts) — add a flag there and to
+`TAB_ORDER`, then enable it per client with SQL:
+
+```sql
+update public.clients set features = '{files,crew,new_this_week}' where domain = '<domain>';
+```
+
+| Flag | Panel |
+|---|---|
+| `files` | File drop (all clients) |
+| `projects` | Projects, with the Publish button |
+| `team` | Team — bios, education, personal (Mission Properties) |
+| `crew` | Team panel, retail variant — shop, picks link, per-member comic picks (Memory Lane) |
+| `new_this_week` | Weekly video URL + shop pics of the week (Memory Lane) |
+
+`team` and `crew` render the same `TeamPanel` with different field sets; the flag names the
+panel *and* its variant. Unknown flags are ignored with a warning, and an empty list falls back
+to `{files}`, so a client always has at least one working tab.
+
+`upsertTeamMemberAction` writes only the columns its variant owns — a crew save never touches
+`education` or `personal`, and a team save never touches `picks_url` or `shop_location`. Keep
+that property if you add a third variant, or one client's form will wipe another's fields.
+
 ### Project stages
 
 The client picks one of three stages per project in the Projects tab. The portal stores
