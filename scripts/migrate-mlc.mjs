@@ -74,13 +74,16 @@ const crew = [
   {
     slug: "jose", name: "Jose", title: "Part II Crew",
     bio: "Jose's positivity will make you believe that a guy like superman can actually exist. You. Will. Believe.",
-    picks_url: "/petapicks", photo: "jose.jpg", image_position: "center", shop_location: "part_two",
+    // The files in the memory-lane-comics repo are mislabelled: sean.jpg is Jose
+    // and jose.jpg is Sean. Swapped here rather than in the repo, so the static
+    // site keeps working until it reads from Supabase.
+    picks_url: "/petapicks", photo: "sean.jpg", image_position: "center", shop_location: "part_two",
     picks: [],
   },
   {
     slug: "sean", name: "Sean", title: "Part II Crew",
     bio: "Sean is the keeper of things that are rad...he'll make your shelf cooler...Mastered being a good dude. Mastered it, we say!",
-    picks_url: null, photo: "sean.jpg", image_position: "top", shop_location: "part_two",
+    picks_url: null, photo: "jose.jpg", image_position: "top", shop_location: "part_two",
     picks: [],
   },
 ];
