@@ -17,6 +17,7 @@ export type TeamMember = {
   name: string;
   title: string | null;
   photo: string | null;
+  hero_image: string | null;
   bio: string[] | null;
   education: string[] | null;
   personal: string | null;
@@ -140,14 +141,20 @@ export async function deleteTeamMemberAction(id: string) {
 
   const { data: member } = await supabase
     .from("team_members")
-    .select("photo")
+    .select("photo, hero_image")
     .eq("id", id)
     .eq("client_id", session.clientId)
     .maybeSingle();
 
-  if (member?.photo) {
-    const path = extractStoragePath(BUCKET, member.photo);
-    if (path) await supabase.storage.from(BUCKET).remove([path]);
+  // Both images live in the same bucket and neither is covered by the row's FK
+  // cascade, so drop them together or the hero object is orphaned.
+  const memberImagePaths = [member?.photo, member?.hero_image]
+    .filter((url): url is string => Boolean(url))
+    .map((url) => extractStoragePath(BUCKET, url))
+    .filter((p): p is string => p !== null);
+
+  if (memberImagePaths.length > 0) {
+    await supabase.storage.from(BUCKET).remove(memberImagePaths);
   }
 
   // The FK cascade drops the pick rows, but not their storage objects.
@@ -172,8 +179,12 @@ export async function deleteTeamMemberAction(id: string) {
 
 export type UploadTeamPhotoState = { error: string | null };
 
-export async function uploadTeamPhotoAction(
-  _prevState: UploadTeamPhotoState,
+// photo is the square crew/team headshot; hero_image is the wide banner behind
+// the picks page header. Same storage bucket and lifecycle, different column.
+type ImageColumn = "photo" | "hero_image";
+
+async function uploadMemberImage(
+  column: ImageColumn,
   formData: FormData
 ): Promise<UploadTeamPhotoState> {
   const session = await getSession();
@@ -182,7 +193,7 @@ export async function uploadTeamPhotoAction(
   const memberId = String(formData.get("memberId") || "");
   const rawFile = formData.get("file");
   if (!memberId || !(rawFile instanceof File) || rawFile.size === 0) {
-    return { error: "Choose a photo to upload." };
+    return { error: "Choose an image to upload." };
   }
 
   const prepared = await prepareImageFile(rawFile);
@@ -192,17 +203,19 @@ export async function uploadTeamPhotoAction(
   const supabase = getSupabaseAdmin();
   const { data: member } = await supabase
     .from("team_members")
-    .select("slug, photo")
+    .select(`slug, ${column}`)
     .eq("id", memberId)
     .eq("client_id", session.clientId)
-    .maybeSingle();
+    .maybeSingle<{ slug: string } & Record<ImageColumn, string | null>>();
 
   if (!member) return { error: "Team member not found." };
 
-  const previousPath = member.photo ? extractStoragePath(BUCKET, member.photo) : null;
+  const previous = member[column];
+  const previousPath = previous ? extractStoragePath(BUCKET, previous) : null;
 
   const safeName = sanitizeFileName(file.name);
-  const path = `${session.clientId}/${member.slug}/${Date.now()}-${safeName}`;
+  const prefix = column === "hero_image" ? "hero-" : "";
+  const path = `${session.clientId}/${member.slug}/${prefix}${Date.now()}-${safeName}`;
 
   const { error: uploadError } = await supabase.storage.from(BUCKET).upload(path, file, {
     contentType: file.type || "application/octet-stream",
@@ -210,12 +223,12 @@ export async function uploadTeamPhotoAction(
   if (uploadError) return { error: "Upload failed. Please try again." };
 
   const { data: publicUrlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
-  const publicUrl = publicUrlData.publicUrl;
 
   await supabase
     .from("team_members")
-    .update({ photo: publicUrl, updated_at: new Date().toISOString() })
-    .eq("id", memberId);
+    .update({ [column]: publicUrlData.publicUrl, updated_at: new Date().toISOString() })
+    .eq("id", memberId)
+    .eq("client_id", session.clientId);
 
   if (previousPath) {
     await supabase.storage.from(BUCKET).remove([previousPath]);
@@ -225,27 +238,51 @@ export async function uploadTeamPhotoAction(
   return { error: null };
 }
 
-export async function removeTeamPhotoAction(memberId: string) {
+async function removeMemberImage(column: ImageColumn, memberId: string) {
   const session = await getSession();
   if (!session) throw new Error("Not authenticated.");
 
   const supabase = getSupabaseAdmin();
   const { data: member } = await supabase
     .from("team_members")
-    .select("photo")
+    .select(column)
     .eq("id", memberId)
     .eq("client_id", session.clientId)
-    .maybeSingle();
+    .maybeSingle<Record<ImageColumn, string | null>>();
 
-  if (!member?.photo) return;
+  const current = member?.[column];
+  if (!current) return;
 
   await supabase
     .from("team_members")
-    .update({ photo: null, updated_at: new Date().toISOString() })
-    .eq("id", memberId);
+    .update({ [column]: null, updated_at: new Date().toISOString() })
+    .eq("id", memberId)
+    .eq("client_id", session.clientId);
 
-  const path = extractStoragePath(BUCKET, member.photo);
+  const path = extractStoragePath(BUCKET, current);
   if (path) await supabase.storage.from(BUCKET).remove([path]);
 
   revalidatePath("/portal");
+}
+
+export async function uploadTeamPhotoAction(
+  _prevState: UploadTeamPhotoState,
+  formData: FormData
+): Promise<UploadTeamPhotoState> {
+  return uploadMemberImage("photo", formData);
+}
+
+export async function removeTeamPhotoAction(memberId: string) {
+  return removeMemberImage("photo", memberId);
+}
+
+export async function uploadTeamHeroAction(
+  _prevState: UploadTeamPhotoState,
+  formData: FormData
+): Promise<UploadTeamPhotoState> {
+  return uploadMemberImage("hero_image", formData);
+}
+
+export async function removeTeamHeroAction(memberId: string) {
+  return removeMemberImage("hero_image", memberId);
 }
