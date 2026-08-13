@@ -56,10 +56,21 @@ export function CalendlyWidget() {
     // timing. The overall timeout also covers ad blockers/privacy
     // extensions that drop the request entirely (no load, no error).
     const poll = window.setInterval(() => {
-      if (window.Calendly) {
+      // Check for initInlineWidget itself, not just window.Calendly — Calendly
+      // sets window.Calendly to a placeholder before the method is attached,
+      // so matching on the bare object risks calling a method that isn't
+      // there yet. That throws inside this callback, and since the throw
+      // happens after the clears below, it would silently kill both the
+      // widget init AND the fallback timeout, leaving the skeleton stuck
+      // forever with no error visible to the visitor.
+      if (window.Calendly?.initInlineWidget) {
         window.clearInterval(poll);
         window.clearTimeout(timeout);
-        window.Calendly.initInlineWidget({ url, parentElement: container });
+        try {
+          window.Calendly.initInlineWidget({ url, parentElement: container });
+        } catch {
+          setLoadFailed(true);
+        }
       }
     }, POLL_INTERVAL_MS);
     const timeout = window.setTimeout(() => {
