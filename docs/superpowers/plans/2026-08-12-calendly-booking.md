@@ -33,7 +33,7 @@
 - Produces: `CalendlyWidget` — a default-export-free named component, `export function CalendlyWidget(): JSX.Element`, taking no props, reading `process.env.NEXT_PUBLIC_CALENDLY_URL` internally.
 - Consumes (from existing code): nothing new — `Contact.tsx` already imports `Eyebrow` from `@/components/ui/Eyebrow`; `CalendlyWidget` is imported the same way component-to-component (`./CalendlyWidget`, since both live in `components/sections/`).
 
-- [ ] **Step 1: Add the env var placeholder to `.env.local`**
+- [x] **Step 1: Add the env var placeholder to `.env.local`**
 
 Open `.env.local` and add a line (use your real Calendly event URL from the account you already created — the format is `https://calendly.com/<your-username>/<event-type>`):
 
@@ -43,7 +43,7 @@ NEXT_PUBLIC_CALENDLY_URL=https://calendly.com/your-username/your-event-type
 
 This file is gitignored (`.env*` in `.gitignore`), so this step has no commit.
 
-- [ ] **Step 2: Create `components/sections/CalendlyWidget.tsx`**
+- [x] **Step 2: Create `components/sections/CalendlyWidget.tsx`**
 
 ```tsx
 "use client";
@@ -99,12 +99,12 @@ export function CalendlyWidget() {
 
 Why the skeleton needs no load-state tracking: the pulsing placeholder is `absolute inset-0`, painted first; the `calendly-inline-widget` div is a normal-flow sibling painted after it in DOM order, so once Calendly's script populates that div with an iframe, the iframe paints on top and visually covers the skeleton. No `onLoad` callback or extra state needed.
 
-- [ ] **Step 3: Verify the component compiles**
+- [x] **Step 3: Verify the component compiles**
 
 Run: `npx tsc --noEmit`
 Expected: no errors mentioning `CalendlyWidget.tsx`.
 
-- [ ] **Step 4: Import `CalendlyWidget` in `Contact.tsx`**
+- [x] **Step 4: Import `CalendlyWidget` in `Contact.tsx`**
 
 In `components/sections/Contact.tsx`, change the import block at the top:
 
@@ -119,7 +119,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { CalendlyWidget } from "./CalendlyWidget";
 ```
 
-- [ ] **Step 5: Add the `mode` tab state**
+- [x] **Step 5: Add the `mode` tab state**
 
 In `Contact.tsx`, inside `export function Contact() {`, change:
 
@@ -136,7 +136,7 @@ to:
   const [mode, setMode] = useState<"message" | "book">("message");
 ```
 
-- [ ] **Step 6: Add the tab switcher and route rendering by `mode`**
+- [x] **Step 6: Add the tab switcher and route rendering by `mode`**
 
 In `Contact.tsx`, find the card opening:
 
@@ -181,12 +181,12 @@ Replace it with:
 
 Nothing else in the file changes — the rest of the existing `!submitted ? ( ... ) : ( ... )` block (the step indicators, the four form steps, the nav buttons, and the "Message sent!" confirmation) stays exactly as it is. The new `mode === "book" ? (<CalendlyWidget />) : !submitted ? (...) : (...)` is a single valid chained ternary, so the file's existing closing `)}` two lines above `</div>` (which currently closes the `!submitted` ternary) still closes correctly — no other line needs to change.
 
-- [ ] **Step 7: Verify the component compiles**
+- [x] **Step 7: Verify the component compiles**
 
 Run: `npx tsc --noEmit`
 Expected: no errors mentioning `Contact.tsx`.
 
-- [ ] **Step 8: Update `README.md`'s Environment Variables section**
+- [x] **Step 8: Update `README.md`'s Environment Variables section**
 
 Change:
 
@@ -221,24 +221,24 @@ CONTACT_EMAIL=colinthomasegan5@gmail.com
 Without `NEXT_PUBLIC_CALENDLY_URL` set, the "Book a call" tab shows a fallback message with a mailto link instead of the calendar.
 ```
 
-- [ ] **Step 9: Full build check**
+- [x] **Step 9: Full build check**
 
 Run: `npm run build`
 Expected: build completes with no type or lint errors.
 
-- [ ] **Step 10: Manual verification in the browser**
+- [x] **Step 10: Manual verification in the browser**
 
 Run: `npm run dev`, open `http://localhost:3000/#contact` (or `/contact`).
 
 Check each of these:
-1. "Send a message" is selected by default; the existing 4-step form behaves exactly as before (this must be unchanged).
-2. Click "Book a call" — a pulsing skeleton appears briefly, then the real Calendly calendar (your actual event type) loads in its place.
-3. Pick a time slot and complete one real test booking; confirm a confirmation email arrives at your Calendly account's address.
-4. Click back to "Send a message" and back to "Book a call" again — the calendar still loads correctly on the second view.
-5. Resize the browser to a narrow mobile width (~375px) — the widget should not overflow the card horizontally.
-6. Temporarily comment out the `NEXT_PUBLIC_CALENDLY_URL` line in `.env.local`, restart `npm run dev`, reload, click "Book a call" — confirm the fallback message + "Email us instead" link renders instead of a broken widget. Uncomment the line and restart `npm run dev` again afterward.
+1. [x] "Send a message" is selected by default; the existing 4-step form behaves exactly as before (this must be unchanged).
+2. [x] Click "Book a call" — a pulsing skeleton appears briefly, then the real Calendly calendar (your actual event type) loads in its place. Verified live against `https://calendly.com/eganlab`.
+3. [ ] **Not done — requires your own Calendly account/inbox.** Pick a time slot and complete one real test booking; confirm a confirmation email arrives at your Calendly account's address.
+4. [x] Click back to "Send a message" and back to "Book a call" again — the calendar still loads correctly on the second view. Found broken (Calendly's script only auto-scans the DOM once on load, so a container that remounts later was never initialized) and fixed by calling `Calendly.initInlineWidget()` explicitly — see `CalendlyWidget.tsx`.
+5. [x] Resize the browser to a narrow mobile width (~375px) — the widget should not overflow the card horizontally. Found broken (the widget's `min-width: 320px` was propagating through the CSS Grid track, forcing the whole two-column layout wider than the viewport) and fixed with `min-w-0` on the grid item — see `Contact.tsx`.
+6. [x] Temporarily comment out the `NEXT_PUBLIC_CALENDLY_URL` line in `.env.local`, restart `npm run dev`, reload, click "Book a call" — confirm the fallback message + "Email us instead" link renders instead of a broken widget. Uncomment the line and restart `npm run dev` again afterward.
 
-- [ ] **Step 11: Commit**
+- [x] **Step 11: Commit**
 
 ```bash
 git add components/sections/CalendlyWidget.tsx components/sections/Contact.tsx README.md
@@ -256,3 +256,8 @@ EOF
 ```
 
 `.env.local` is gitignored and is not part of this commit — confirm with `git status` that only the three files above are staged.
+
+## Post-implementation notes
+
+- Two bugs found during Step 10 testing (remount reinit, mobile overflow) required code changes beyond this plan's original snippets — fixed and committed separately (`8a3a650`). See `CalendlyWidget.tsx` and `Contact.tsx` for the current source; the snippets in Step 2 and the container markup above are now superseded by the actual files.
+- The `background_color`/`text_color` query params in `buildWidgetUrl` don't apply to a Calendly account-root URL (`calendly.com/<username>`, listing multiple event types) — Calendly only honors them on a specific event-type URL. Until `NEXT_PUBLIC_CALENDLY_URL` points at a single event type (e.g. `calendly.com/eganlab/30min`), the embed renders with Calendly's default white theme regardless of the site's dark mode. This falls under the spec's existing "light-mode-exact widget theming" deferral, not a new gap — flagged here since it's a full mismatch (not just imprecise) in dark mode.
