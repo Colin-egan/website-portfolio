@@ -70,13 +70,18 @@ export function CalendlyWidget() {
       setStatus("failed");
     };
 
-    // The script's own "load" event fires once its top-level code has run,
-    // but window.Calendly isn't assigned until an async step after that —
-    // calling initInlineWidget right on "load" can race ahead of it and
-    // silently no-op. Poll for the method itself (not just the namespace
-    // object, which Calendly assigns as a placeholder first) rather than
-    // trusting "load" timing.
+    // On first load the script's own auto-scan initializes the container (it
+    // needs the data-url attribute set in the markup below — without it the
+    // scan throws, and that exception aborts the script before it ever
+    // assigns window.Calendly). It only scans once though, so a container
+    // mounted later — switching tabs away and back — has to be initialized
+    // by hand. Calendly stamps data-processed on anything its scan touched,
+    // which distinguishes the two cases without double-initializing.
     const poll = window.setInterval(() => {
+      if (container.dataset.processed === "true" || container.querySelector("iframe")) {
+        window.clearInterval(poll);
+        return;
+      }
       if (window.Calendly?.initInlineWidget) {
         window.clearInterval(poll);
         try {
@@ -118,14 +123,20 @@ export function CalendlyWidget() {
       {status === "loading" && (
         <div className="absolute inset-0 z-0 bg-white/3 animate-pulse" aria-hidden />
       )}
-      {/* Must stay above the skeleton: an absolutely positioned sibling paints
-          in a later stage than a static one regardless of DOM order, so without
-          its own stacking context this container (and Calendly's iframe inside
-          it) renders *underneath* the overlay and the tab looks permanently
-          stuck on the loading state. */}
+      {/* data-url is required, not optional: Calendly's script auto-scans for
+          .calendly-inline-widget on load and throws on any it finds without
+          one — and that exception aborts the script before it assigns
+          window.Calendly, so nothing can recover afterwards.
+
+          relative z-10 keeps this above the skeleton: an absolutely positioned
+          sibling paints in a later stage than a static one regardless of DOM
+          order, so without its own stacking context this container (and
+          Calendly's iframe inside it) renders *underneath* the overlay and the
+          tab looks permanently stuck on the loading state. */}
       <div
         ref={containerRef}
         className="calendly-inline-widget relative z-10"
+        data-url={buildWidgetUrl(CALENDLY_URL)}
         style={{ minWidth: "320px", height: WIDGET_HEIGHT }}
       />
     </div>
