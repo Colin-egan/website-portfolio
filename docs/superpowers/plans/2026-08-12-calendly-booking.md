@@ -97,7 +97,9 @@ export function CalendlyWidget() {
 }
 ```
 
-Why the skeleton needs no load-state tracking: the pulsing placeholder is `absolute inset-0`, painted first; the `calendly-inline-widget` div is a normal-flow sibling painted after it in DOM order, so once Calendly's script populates that div with an iframe, the iframe paints on top and visually covers the skeleton. No `onLoad` callback or extra state needed.
+~~Why the skeleton needs no load-state tracking: the pulsing placeholder is `absolute inset-0`, painted first; the `calendly-inline-widget` div is a normal-flow sibling painted after it in DOM order, so once Calendly's script populates that div with an iframe, the iframe paints on top and visually covers the skeleton. No `onLoad` callback or extra state needed.~~
+
+> **CORRECTION — this reasoning is wrong, and it shipped a user-visible bug.** DOM order does not decide this. Per CSS painting order, positioned elements (`position: absolute` with `z-index: auto`) paint in a *later* stage than non-positioned block-level descendants, so the skeleton covers the `calendly-inline-widget` div permanently — the iframe never becomes visible and the tab looks stuck on a pulsing gray box forever. Verified with `document.elementFromPoint()`: the skeleton was the topmost element even after the iframe rendered. The widget container needs its own stacking context (`relative z-10`), and the skeleton is now removed outright once a `MutationObserver` sees the iframe appear.
 
 - [x] **Step 3: Verify the component compiles**
 

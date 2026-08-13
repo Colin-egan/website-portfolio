@@ -42,41 +42,54 @@ function UnavailableFallback({ message }: { message: string }) {
 
 export function CalendlyWidget() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [loadFailed, setLoadFailed] = useState(false);
+  const [status, setStatus] = useState<"loading" | "ready" | "failed">("loading");
 
   useEffect(() => {
     if (!CALENDLY_URL || !containerRef.current) return;
     const container = containerRef.current;
     const url = buildWidgetUrl(CALENDLY_URL);
 
+    // Calendly signals nothing when the widget finishes rendering, and
+    // initInlineWidget returning tells us only that the call was made — not
+    // that a calendar actually appeared. Watch for the iframe it injects so
+    // "ready" reflects something the visitor can genuinely see.
+    const observer = new MutationObserver(() => {
+      if (container.querySelector("iframe")) {
+        window.clearInterval(poll);
+        window.clearTimeout(timeout);
+        observer.disconnect();
+        setStatus("ready");
+      }
+    });
+    observer.observe(container, { childList: true, subtree: true });
+
+    const fail = () => {
+      window.clearInterval(poll);
+      window.clearTimeout(timeout);
+      observer.disconnect();
+      setStatus("failed");
+    };
+
     // The script's own "load" event fires once its top-level code has run,
     // but window.Calendly isn't assigned until an async step after that —
     // calling initInlineWidget right on "load" can race ahead of it and
-    // silently no-op. Poll for window.Calendly instead of trusting "load"
-    // timing. The overall timeout also covers ad blockers/privacy
-    // extensions that drop the request entirely (no load, no error).
+    // silently no-op. Poll for the method itself (not just the namespace
+    // object, which Calendly assigns as a placeholder first) rather than
+    // trusting "load" timing.
     const poll = window.setInterval(() => {
-      // Check for initInlineWidget itself, not just window.Calendly — Calendly
-      // sets window.Calendly to a placeholder before the method is attached,
-      // so matching on the bare object risks calling a method that isn't
-      // there yet. That throws inside this callback, and since the throw
-      // happens after the clears below, it would silently kill both the
-      // widget init AND the fallback timeout, leaving the skeleton stuck
-      // forever with no error visible to the visitor.
       if (window.Calendly?.initInlineWidget) {
         window.clearInterval(poll);
-        window.clearTimeout(timeout);
         try {
           window.Calendly.initInlineWidget({ url, parentElement: container });
         } catch {
-          setLoadFailed(true);
+          fail();
         }
       }
     }, POLL_INTERVAL_MS);
-    const timeout = window.setTimeout(() => {
-      window.clearInterval(poll);
-      setLoadFailed(true);
-    }, LOAD_TIMEOUT_MS);
+
+    // Covers ad blockers and privacy extensions, which commonly drop this
+    // script outright — no load event, no error event, nothing to react to.
+    const timeout = window.setTimeout(fail, LOAD_TIMEOUT_MS);
 
     if (!document.querySelector<HTMLScriptElement>(`script[src="${CALENDLY_SCRIPT_SRC}"]`)) {
       const script = document.createElement("script");
@@ -88,6 +101,7 @@ export function CalendlyWidget() {
     return () => {
       window.clearInterval(poll);
       window.clearTimeout(timeout);
+      observer.disconnect();
     };
   }, []);
 
@@ -95,16 +109,23 @@ export function CalendlyWidget() {
     return <UnavailableFallback message="Booking is temporarily unavailable." />;
   }
 
-  if (loadFailed) {
+  if (status === "failed") {
     return <UnavailableFallback message="Having trouble loading the calendar." />;
   }
 
   return (
     <div className="relative rounded-xl overflow-hidden" style={{ minHeight: WIDGET_HEIGHT }}>
-      <div className="absolute inset-0 bg-white/3 animate-pulse" aria-hidden />
+      {status === "loading" && (
+        <div className="absolute inset-0 z-0 bg-white/3 animate-pulse" aria-hidden />
+      )}
+      {/* Must stay above the skeleton: an absolutely positioned sibling paints
+          in a later stage than a static one regardless of DOM order, so without
+          its own stacking context this container (and Calendly's iframe inside
+          it) renders *underneath* the overlay and the tab looks permanently
+          stuck on the loading state. */}
       <div
         ref={containerRef}
-        className="calendly-inline-widget"
+        className="calendly-inline-widget relative z-10"
         style={{ minWidth: "320px", height: WIDGET_HEIGHT }}
       />
     </div>
