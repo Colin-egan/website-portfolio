@@ -120,7 +120,7 @@ export function Contact() {
           </div>
 
           {/* Right — multi-step form */}
-          <div>
+          <div className="min-w-0">
             <div className="bg-card border border-white/8 rounded-2xl p-8">
               <div className="flex items-center gap-1 mb-8 p-1 rounded-xl bg-white/3 border border-white/8 w-fit">
                 <button
