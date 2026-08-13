@@ -167,9 +167,15 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-border">
-          <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Egan Lab. All rights reserved.
-          </p>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            <p>© {new Date().getFullYear()} Egan Lab. All rights reserved.</p>
+            <Link href="/privacy" className="hover:text-foreground transition-colors">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors">
+              Terms
+            </Link>
+          </div>
 
           <div className="flex items-center gap-1">
             {socialLinks.map(({ label, href, Icon }) => (

@@ -7,6 +7,7 @@ import { caseStudies } from "@/lib/case-studies";
 import { BeforeAfterSlider } from "@/components/ui/BeforeAfterSlider";
 import { Contact } from "@/components/sections/Contact";
 import { Footer } from "@/components/layout/Footer";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -57,11 +58,8 @@ export default async function CaseStudyPage({ params }: Props) {
 
         {/* Header */}
         <div className="mb-10">
-          <div className="text-sm font-semibold text-amber-400 mb-4 flex items-center gap-2 tracking-[0.12em] uppercase">
-            <span className="w-6 h-px bg-amber-400" />
-            {study.category}
-          </div>
-          <h1 className="font-display font-black text-4xl sm:text-5xl md:text-6xl leading-[0.95] tracking-tight mb-6">
+          <Eyebrow>{study.category}</Eyebrow>
+          <h1 className="font-display font-black text-4xl sm:text-5xl md:text-6xl leading-[0.95] tracking-tight mb-6 text-balance">
             {study.title}
           </h1>
           <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl mb-6">

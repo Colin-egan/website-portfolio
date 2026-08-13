@@ -29,13 +29,18 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Environment Variables
 
-No env vars required for local development. For production form handling, add:
+No env vars are required for local development to run, but two optional integrations use them:
 
 ```env
+# Calendly booking embed (Contact section "Book a call" tab)
+NEXT_PUBLIC_CALENDLY_URL=https://calendly.com/your-username/your-event-type
+
 # Optional: wire up actual form submission
 RESEND_API_KEY=your_key_here
 CONTACT_EMAIL=colinthomasegan5@gmail.com
 ```
+
+Without `NEXT_PUBLIC_CALENDLY_URL` set, the "Book a call" tab shows a fallback message with a mailto link instead of the calendar.
 
 ## Project Structure
 

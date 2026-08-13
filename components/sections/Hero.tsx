@@ -37,7 +37,7 @@ function AnimatedStat({ end, suffix, label, teal, startDelay = 0 }: { end: numbe
   return (
     <div>
       <div
-        className="text-4xl font-display font-bold"
+        className="text-4xl font-mono font-medium tabular-nums"
         style={teal ? { color: "oklch(0.75 0.15 195)" } : undefined}
       >
         {teal ? display : <span className="text-gradient">{display}</span>}
@@ -49,7 +49,7 @@ function AnimatedStat({ end, suffix, label, teal, startDelay = 0 }: { end: numbe
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen flex items-start sm:items-center overflow-hidden">
+    <section className="relative min-h-dvh flex items-start sm:items-center overflow-hidden">
       <div className="relative z-10 max-w-7xl mx-auto px-6 pt-20 sm:pt-32 pb-24 w-full grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-12 lg:gap-16 items-center">
         {/* Text column */}
         <div className="max-w-4xl">

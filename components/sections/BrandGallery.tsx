@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 
 interface BrandShot {
   src: string;
@@ -100,18 +101,9 @@ export function BrandGallery() {
       <div className="absolute -z-10 bottom-0 right-1/4 w-64 h-64 rounded-full bg-teal-400/10 blur-3xl" aria-hidden />
 
       <div className="max-w-3xl mx-auto px-6 text-center mb-16">
-        <motion.div
-          className="text-sm font-semibold text-amber-600 mb-4 flex items-center justify-center gap-2 tracking-[0.12em] uppercase"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-        >
-          <span className="w-6 h-px bg-amber-600" />
-          Who we build for
-          <span className="w-6 h-px bg-amber-600" />
-        </motion.div>
+        <Eyebrow>who we build for</Eyebrow>
         <motion.h2
-          className="text-4xl md:text-5xl font-display font-black leading-tight mb-5"
+          className="text-4xl md:text-5xl font-display font-black leading-tight mb-5 text-balance"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

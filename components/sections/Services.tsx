@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Code2, Palette, Zap, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 
 const services = [
   {
@@ -42,15 +43,16 @@ const services = [
 
 interface ServiceCardProps {
   service: (typeof services)[number];
+  offsetClass: string;
 }
 
-function ServiceCard({ service }: ServiceCardProps) {
+function ServiceCard({ service, offsetClass }: ServiceCardProps) {
   const Icon = service.icon;
   const isTeal = service.accent === "teal";
 
   return (
     <motion.div
-      className="group relative hover:-translate-y-1 transition-transform duration-300"
+      className={`group relative hover:-translate-y-1 transition-transform duration-300 ${offsetClass}`}
       initial={{ opacity: 0, y: 60 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
@@ -94,22 +96,16 @@ function ServiceCard({ service }: ServiceCardProps) {
   );
 }
 
+const CARD_OFFSETS = ["", "md:mt-10", "md:mt-3"];
+
 export function Services() {
   return (
     <section id="services" className="py-32 max-w-7xl mx-auto px-6">
       {/* Header */}
       <div className="max-w-2xl mb-16">
-        <motion.div
-          className="text-sm font-semibold text-amber-600 mb-4 flex items-center gap-2 tracking-[0.12em] uppercase"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-        >
-          <span className="w-8 h-px bg-amber-600" />
-          What we do
-        </motion.div>
+        <Eyebrow>what we do</Eyebrow>
         <motion.h2
-          className="text-5xl md:text-6xl font-display font-black mb-6 leading-tight"
+          className="text-5xl md:text-6xl font-display font-black mb-6 leading-tight text-balance"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -129,10 +125,10 @@ export function Services() {
         </motion.p>
       </div>
 
-      {/* Cards grid */}
+      {/* Cards grid — staggered vertically to break the flat three-column row */}
       <div className="grid md:grid-cols-3 gap-6">
-        {services.map((service) => (
-          <ServiceCard key={service.title} service={service} />
+        {services.map((service, i) => (
+          <ServiceCard key={service.title} service={service} offsetClass={CARD_OFFSETS[i]} />
         ))}
       </div>
     </section>

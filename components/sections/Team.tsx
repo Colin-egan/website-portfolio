@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Sparkles, Globe, Palette } from "lucide-react";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 
 const passions = [
   { icon: Globe, label: "Web Design" },
@@ -16,18 +17,9 @@ export function Team() {
       <div className="max-w-5xl mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-20">
-          <motion.div
-            className="text-sm font-medium text-amber-600 mb-4 flex items-center justify-center gap-2"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-          >
-            <span className="w-8 h-px bg-amber-600" />
-            The team
-            <span className="w-8 h-px bg-amber-600" />
-          </motion.div>
+          <Eyebrow>the team</Eyebrow>
           <motion.h2
-            className="text-5xl md:text-6xl font-display font-black leading-tight"
+            className="text-5xl md:text-6xl font-display font-black leading-tight text-balance"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

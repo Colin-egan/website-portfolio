@@ -3,12 +3,7 @@
 import { motion } from "framer-motion";
 import { Check, Zap, Star } from "lucide-react";
 import Link from "next/link";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 
 const plans = [
   {
@@ -115,18 +110,9 @@ export function Pricing() {
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <motion.div
-            className="text-sm font-medium text-amber-400 mb-4 flex items-center justify-center gap-2"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-          >
-            <span className="w-8 h-px bg-amber-400" />
-            Pricing
-            <span className="w-8 h-px bg-amber-400" />
-          </motion.div>
+          <Eyebrow>pricing</Eyebrow>
           <motion.h2
-            className="text-5xl md:text-6xl font-display font-black mb-6 leading-tight"
+            className="text-5xl md:text-6xl font-display font-black mb-6 leading-tight text-balance"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -153,7 +139,7 @@ export function Pricing() {
               key={plan.name}
               className={`relative rounded-2xl p-8 flex flex-col transition-all duration-500 hover:-translate-y-1 ${
                 plan.featured
-                  ? "bg-amber-600 glow"
+                  ? "bg-amber-600 glow md:-mt-3"
                   : "bg-card border border-white/8 hover:border-amber-500/30"
               }`}
               initial={{ opacity: 0, y: 40 }}
@@ -209,39 +195,30 @@ export function Pricing() {
           ))}
         </div>
 
-        {/* FAQ */}
-        <div className="max-w-3xl mx-auto">
+        {/* FAQ — plain two-column list, answers visible up front */}
+        <div className="max-w-5xl mx-auto">
           <motion.h3
-            className="text-3xl font-display font-bold text-center mb-10"
+            className="text-3xl font-display font-bold text-center mb-10 text-balance"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
             Frequently asked questions
           </motion.h3>
-          <Accordion multiple={false} className="space-y-2">
+          <div className="grid sm:grid-cols-2 gap-x-10 gap-y-8">
             {faqs.map((faq, i) => (
               <motion.div
                 key={faq.q}
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.04 }}
+                transition={{ delay: (i % 2) * 0.06 }}
               >
-                <AccordionItem
-                  value={`item-${i}`}
-                  className="border border-white/8 rounded-xl px-5 bg-card data-[state=open]:border-amber-500/30"
-                >
-                  <AccordionTrigger className="text-sm font-medium hover:no-underline hover:text-amber-300 transition-colors py-4">
-                    {faq.q}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground text-sm leading-relaxed pb-4">
-                    {faq.a}
-                  </AccordionContent>
-                </AccordionItem>
+                <h4 className="text-sm font-semibold mb-1.5">{faq.q}</h4>
+                <p className="text-muted-foreground text-sm leading-relaxed">{faq.a}</p>
               </motion.div>
             ))}
-          </Accordion>
+          </div>
         </div>
       </div>
     </section>

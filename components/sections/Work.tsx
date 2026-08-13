@@ -6,6 +6,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { caseStudies } from "@/lib/case-studies";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 
 interface WorkCardProps {
   study: typeof caseStudies[0];
@@ -106,17 +107,9 @@ export function Work() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
         <div className="max-w-xl">
-          <motion.div
-            className="text-sm font-semibold text-amber-400 mb-4 flex items-center gap-2 tracking-[0.12em] uppercase"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-          >
-            <span className="w-6 h-px bg-amber-400" />
-            Selected work
-          </motion.div>
+          <Eyebrow>selected work</Eyebrow>
           <motion.h2
-            className="text-4xl md:text-5xl font-display font-black leading-tight"
+            className="text-4xl md:text-5xl font-display font-black leading-tight text-balance"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}

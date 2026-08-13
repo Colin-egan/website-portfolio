@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, CheckCircle, Mail, MessageSquare, DollarSign, User } from "lucide-react";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { CalendlyWidget } from "./CalendlyWidget";
 
 const projectTypes = [
   "New Website",
@@ -40,6 +42,7 @@ const steps = [
 export function Contact() {
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
+  const [mode, setMode] = useState<"message" | "book">("message");
   const [data, setData] = useState<FormData>({
     name: "", email: "", projectType: "", budget: "", message: ""
   });
@@ -63,17 +66,9 @@ export function Contact() {
         <div className="grid md:grid-cols-2 gap-20 items-start">
           {/* Left — copy */}
           <div className="md:sticky md:top-32">
-            <motion.div
-              className="text-sm font-medium text-amber-400 mb-4 flex items-center gap-2"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-            >
-              <span className="w-8 h-px bg-amber-400" />
-              Get in touch
-            </motion.div>
+            <Eyebrow>get in touch</Eyebrow>
             <motion.h2
-              className="text-5xl md:text-6xl font-display font-black mb-6 leading-tight"
+              className="text-5xl md:text-6xl font-display font-black mb-6 leading-tight text-balance"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -127,7 +122,32 @@ export function Contact() {
           {/* Right — multi-step form */}
           <div>
             <div className="bg-card border border-white/8 rounded-2xl p-8">
-              {!submitted ? (
+              <div className="flex items-center gap-1 mb-8 p-1 rounded-xl bg-white/3 border border-white/8 w-fit">
+                <button
+                  onClick={() => setMode("message")}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    mode === "message"
+                      ? "bg-amber-600 text-white"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Send a message
+                </button>
+                <button
+                  onClick={() => setMode("book")}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    mode === "book"
+                      ? "bg-amber-600 text-white"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Book a call
+                </button>
+              </div>
+
+              {mode === "book" ? (
+                <CalendlyWidget />
+              ) : !submitted ? (
                 <>
                   {/* Step indicators */}
                   <div className="flex items-center gap-2 mb-8">

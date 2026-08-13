@@ -1,19 +1,25 @@
 import type { Metadata } from "next";
-import { Inter, Inter_Tight } from "next/font/google";
+import { Geist, Geist_Mono, Outfit } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { LenisProvider } from "@/components/providers/LenisProvider";
 import { Navbar } from "@/components/layout/Navbar";
 
-const inter = Inter({
+const geist = Geist({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-geist",
   display: "swap",
 });
 
-const interTight = Inter_Tight({
+const geistMono = Geist_Mono({
   subsets: ["latin"],
-  variable: "--font-inter-tight",
+  variable: "--font-geist-mono",
+  display: "swap",
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  variable: "--font-outfit",
   weight: ["400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
@@ -95,14 +101,20 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${interTight.variable}`}
+      className={`${geist.variable} ${geistMono.variable} ${outfit.variable}`}
       suppressHydrationWarning
     >
-      <body className="min-h-screen bg-background text-foreground overflow-x-hidden">
+      <body className="min-h-dvh bg-background text-foreground overflow-x-hidden">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
         />
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2.5 focus:rounded-full focus:bg-amber-600 focus:text-white focus:text-sm focus:font-semibold focus:shadow-lg"
+        >
+          Skip to content
+        </a>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
@@ -111,7 +123,7 @@ export default function RootLayout({
         >
           <LenisProvider>
             <Navbar />
-            <main>{children}</main>
+            <main id="main-content">{children}</main>
           </LenisProvider>
         </ThemeProvider>
       </body>

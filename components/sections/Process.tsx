@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useRef } from "react";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 
 const steps = [
   {
@@ -49,17 +50,9 @@ export function Process() {
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <div className="max-w-2xl mb-20">
-          <motion.div
-            className="text-sm font-semibold text-amber-400 mb-4 flex items-center gap-2 tracking-[0.12em] uppercase"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-          >
-            <span className="w-6 h-px bg-amber-400" />
-            How it works
-          </motion.div>
+          <Eyebrow>how it works</Eyebrow>
           <motion.h2
-            className="text-4xl md:text-5xl font-display font-black mb-6 leading-tight"
+            className="text-4xl md:text-5xl font-display font-black mb-6 leading-tight text-balance"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -90,7 +83,7 @@ export function Process() {
               >
                 {/* Step number dot */}
                 <div className="w-16 h-16 rounded-full border border-amber-500/30 bg-card flex items-center justify-center mb-0 md:mb-6 relative z-10 group-hover:border-amber-500/60 group-hover:bg-amber-500/10 transition-all duration-300 flex-shrink-0">
-                  <span className="font-display font-black text-xl text-gradient">{step.number}</span>
+                  <span className="font-mono font-medium text-xl tabular-nums text-gradient">{step.number}</span>
                 </div>
 
                 <div className="pt-2 md:pt-0">

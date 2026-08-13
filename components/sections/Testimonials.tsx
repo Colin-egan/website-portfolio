@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Quote } from "lucide-react";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 
 const testimonials = [
   {
@@ -60,18 +61,9 @@ export function Testimonials() {
       <div className="max-w-5xl mx-auto px-6">
         {/* Header */}
         <div className="text-center mb-16">
-          <motion.div
-            className="text-sm font-medium text-purple-400 mb-4 flex items-center justify-center gap-2"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-          >
-            <span className="w-8 h-px bg-purple-400" />
-            Social proof
-            <span className="w-8 h-px bg-purple-400" />
-          </motion.div>
+          <Eyebrow>social proof</Eyebrow>
           <motion.h2
-            className="text-5xl md:text-6xl font-display font-black leading-tight"
+            className="text-5xl md:text-6xl font-display font-black leading-tight text-balance"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -92,13 +84,13 @@ export function Testimonials() {
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="text-center"
           >
-            <Quote size={48} className="text-purple-500/40 mx-auto mb-8" />
-            <blockquote className="text-xl md:text-2xl font-display font-normal leading-relaxed mb-10 max-w-3xl mx-auto">
+            <Quote size={48} className="text-teal-500/40 mx-auto mb-8" />
+            <blockquote className="text-xl md:text-2xl font-display font-normal leading-relaxed mb-10 max-w-3xl mx-auto text-balance">
               "{t.quote}"
             </blockquote>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-full bg-purple-600 flex items-center justify-center font-bold text-white text-lg flex-shrink-0">
+                <div className="w-14 h-14 rounded-full bg-teal-600 flex items-center justify-center font-bold text-white text-lg flex-shrink-0">
                   {t.avatar}
                 </div>
                 <div className="text-left">
@@ -106,7 +98,7 @@ export function Testimonials() {
                   <div className="text-sm text-muted-foreground">{t.role}, {t.company}</div>
                 </div>
               </div>
-              <div className="px-4 py-2 rounded-full bg-purple-500/15 border border-purple-500/25 text-purple-300 text-sm font-medium">
+              <div className="px-4 py-2 rounded-full bg-teal-500/15 border border-teal-500/25 text-teal-300 text-sm font-medium">
                 {t.metric}
               </div>
             </div>
@@ -120,7 +112,7 @@ export function Testimonials() {
               key={i}
               onClick={() => setActive(i)}
               className={`transition-all duration-300 rounded-full ${
-                i === active ? "w-8 h-2 bg-purple-400" : "w-2 h-2 bg-white/20 hover:bg-white/40"
+                i === active ? "w-8 h-2 bg-teal-400" : "w-2 h-2 bg-white/20 hover:bg-white/40"
               }`}
             />
           ))}
