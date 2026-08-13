@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { getSession } from "@/lib/portal/session";
 import { getSetting, setSetting } from "@/lib/portal/settings";
+import { parseLinkUrl } from "@/lib/portal/links";
 import {
   extractStoragePath,
   prepareImageFile,
@@ -18,6 +19,7 @@ export type WeeklyPic = {
   image: string;
   title: string;
   caption: string | null;
+  link_url: string | null;
   sort_order: number;
 };
 
@@ -31,7 +33,7 @@ export async function listWeeklyPics(): Promise<WeeklyPic[]> {
   const supabase = getSupabaseAdmin();
   const { data } = await supabase
     .from("weekly_pics")
-    .select("id, image, title, caption, sort_order")
+    .select("id, image, title, caption, link_url, sort_order")
     .eq("client_id", session.clientId)
     .order("sort_order", { ascending: true });
 
@@ -95,6 +97,11 @@ export async function addWeeklyPicAction(
     return { error: "Choose a photo to upload." };
   }
 
+  const linkUrl = parseLinkUrl(formData.get("link_url"));
+  if (linkUrl === false) {
+    return { error: "That shop link doesn't look right. Paste the full URL, starting with https://" };
+  }
+
   const prepared = await prepareImageFile(rawFile);
   if (!prepared.file) return { error: prepared.error };
   const file = prepared.file;
@@ -122,6 +129,7 @@ export async function addWeeklyPicAction(
     image: publicUrlData.publicUrl,
     title,
     caption,
+    link_url: linkUrl,
     sort_order: (last?.sort_order ?? -1) + 1,
   });
 
@@ -129,6 +137,41 @@ export async function addWeeklyPicAction(
     await supabase.storage.from(BUCKET).remove([path]);
     return { error: "Failed to add pic." };
   }
+
+  revalidatePath("/portal");
+  return { error: null };
+}
+
+/** Edit an existing pic's title, caption, or shop link. */
+export async function updateWeeklyPicAction(
+  _prevState: WeeklyFormState,
+  formData: FormData
+): Promise<WeeklyFormState> {
+  const session = await getSession();
+  if (!session) return { error: "Not authenticated." };
+
+  const id = String(formData.get("id") || "");
+  const title = String(formData.get("title") || "").trim();
+  if (!id) return { error: "Missing pic." };
+  if (!title) return { error: "Comic title is required." };
+
+  const linkUrl = parseLinkUrl(formData.get("link_url"));
+  if (linkUrl === false) {
+    return { error: "That shop link doesn't look right. Paste the full URL, starting with https://" };
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from("weekly_pics")
+    .update({
+      title,
+      caption: String(formData.get("caption") || "").trim() || null,
+      link_url: linkUrl,
+    })
+    .eq("id", id)
+    .eq("client_id", session.clientId);
+
+  if (error) return { error: "Failed to save pic." };
 
   revalidatePath("/portal");
   return { error: null };

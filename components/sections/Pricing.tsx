@@ -20,6 +20,7 @@ const plans = [
       "Deployment on Vercel",
       "48-hour first draft",
       "Unlimited revisions",
+      "+ Client Portal add-on ($300)",
     ],
     cta: "Start a Project",
     featured: false,
@@ -27,12 +28,11 @@ const plans = [
   },
   {
     name: "Ongoing Management",
-    price: "$30",
+    price: "$45",
     period: "/month",
     description: "We handle everything so you can focus on running your business.",
     features: [
       "Hosting oversight",
-      "Client portal access",
       "Content updates (up to 4/mo)",
       "Security monitoring",
       "Performance checks",
@@ -48,7 +48,7 @@ const plans = [
   },
   {
     name: "Automation Package",
-    price: "$450",
+    price: "$300",
     period: "one-time",
     description: "Stop doing repetitive work manually. Let automation handle it.",
     features: [

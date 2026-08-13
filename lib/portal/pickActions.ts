@@ -8,6 +8,7 @@ import {
   prepareImageFile,
   sanitizeFileName,
 } from "@/lib/portal/imageUpload";
+import { parseLinkUrl } from "@/lib/portal/links";
 
 const BUCKET = "team-media";
 
@@ -16,6 +17,7 @@ export type TeamPick = {
   team_member_id: string;
   image: string;
   title: string;
+  link_url: string | null;
   sort_order: number;
 };
 
@@ -29,7 +31,7 @@ export async function listTeamPicks(): Promise<Record<string, TeamPick[]>> {
   const supabase = getSupabaseAdmin();
   const { data } = await supabase
     .from("team_picks")
-    .select("id, team_member_id, image, title, sort_order")
+    .select("id, team_member_id, image, title, link_url, sort_order")
     .eq("client_id", session.clientId)
     .order("sort_order", { ascending: true });
 
@@ -55,6 +57,11 @@ export async function addTeamPickAction(
   if (!title) return { error: "Comic title is required." };
   if (!(rawFile instanceof File) || rawFile.size === 0) {
     return { error: "Choose a photo to upload." };
+  }
+
+  const linkUrl = parseLinkUrl(formData.get("link_url"));
+  if (linkUrl === false) {
+    return { error: "That shop link doesn't look right. Paste the full URL, starting with https://" };
   }
 
   const prepared = await prepareImageFile(rawFile);
@@ -95,6 +102,7 @@ export async function addTeamPickAction(
     client_id: session.clientId,
     image: publicUrlData.publicUrl,
     title,
+    link_url: linkUrl,
     sort_order: (last?.sort_order ?? -1) + 1,
   });
 
@@ -103,6 +111,38 @@ export async function addTeamPickAction(
     await supabase.storage.from(BUCKET).remove([path]);
     return { error: "Failed to add pick." };
   }
+
+  revalidatePath("/portal");
+  return { error: null };
+}
+
+/** Edit an existing pick's title or shop link. The image is replaced by deleting
+ *  and re-adding, which keeps this action simple. */
+export async function updateTeamPickAction(
+  _prevState: PickFormState,
+  formData: FormData
+): Promise<PickFormState> {
+  const session = await getSession();
+  if (!session) return { error: "Not authenticated." };
+
+  const id = String(formData.get("id") || "");
+  const title = String(formData.get("title") || "").trim();
+  if (!id) return { error: "Missing pick." };
+  if (!title) return { error: "Comic title is required." };
+
+  const linkUrl = parseLinkUrl(formData.get("link_url"));
+  if (linkUrl === false) {
+    return { error: "That shop link doesn't look right. Paste the full URL, starting with https://" };
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from("team_picks")
+    .update({ title, link_url: linkUrl })
+    .eq("id", id)
+    .eq("client_id", session.clientId);
+
+  if (error) return { error: "Failed to save pick." };
 
   revalidatePath("/portal");
   return { error: null };

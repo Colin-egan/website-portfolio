@@ -74,7 +74,8 @@ Every feature below is **live and working** on the Egan Lab website. Use this do
 
 | Package | Price | Anchor |
 |---------|-------|--------|
-| Website Build | $650 one-time | [/#pricing](#) |
+| Website Build | $800 one-time | [/#pricing](#) |
+| Client Portal | $300 one-time, add-on to Website Build | [/#pricing](#) |
 | Ongoing Management | $45/month | [/#pricing](#) |
 | Automation Package | $300 one-time | [/#pricing](#) |
 
