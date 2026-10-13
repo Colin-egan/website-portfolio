@@ -15,6 +15,7 @@ const navLinks = [
   { label: "About", href: "/#process" },
   { label: "Contact", href: "/contact" },
   { label: "Client Portal", href: "/portal" },
+  { label: "Club Sites", href: "https://eganlab.com/uncclub" },
 ];
 
 export function Navbar() {
