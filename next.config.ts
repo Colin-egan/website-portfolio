@@ -3,11 +3,18 @@ import type { NextConfig } from "next";
 const UNCCLUB_ORIGIN = "https://eganlab-uncclubmaker.vercel.app";
 
 const nextConfig: NextConfig = {
-  // The UNC club builder is a separate Vercel project (basePath: /uncclub).
+  // The club builder is a separate Vercel project (basePath: /clubs).
   async rewrites() {
     return [
-      { source: "/uncclub", destination: `${UNCCLUB_ORIGIN}/uncclub` },
-      { source: "/uncclub/:path*", destination: `${UNCCLUB_ORIGIN}/uncclub/:path*` },
+      { source: "/clubs", destination: `${UNCCLUB_ORIGIN}/clubs` },
+      { source: "/clubs/:path*", destination: `${UNCCLUB_ORIGIN}/clubs/:path*` },
+    ];
+  },
+  // Keep links to the old /uncclub path working.
+  async redirects() {
+    return [
+      { source: "/uncclub", destination: "/clubs", permanent: false },
+      { source: "/uncclub/:path*", destination: "/clubs/:path*", permanent: false },
     ];
   },
   images: {
