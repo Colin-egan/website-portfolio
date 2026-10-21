@@ -137,6 +137,24 @@ function SiteContentEditorView({
 
   const dirty = isDirty(section.key);
   const sectionStatus = status?.key === section.key ? status : null;
+  const message = sectionStatus?.error
+    ? sectionStatus.error
+    : sectionStatus
+      ? spec.liveOnSave
+        ? "Saved. It'll be on your site within a couple of minutes."
+        : "Saved. Press Publish when you're ready to put it live."
+      : dirty
+        ? "Unsaved changes"
+        : "";
+  const saveBar = {
+    label: section.title,
+    dirty,
+    pending,
+    message,
+    isError: Boolean(sectionStatus?.error),
+    onSave: save,
+    onDiscard: discard,
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -191,6 +209,9 @@ function SiteContentEditorView({
         <CardHeader>
           <CardTitle className="text-base">{section.title}</CardTitle>
           {section.description && <CardDescription>{section.description}</CardDescription>}
+          {/* The same save as the sticky bar below, so a quick edit near the top of a
+              long page doesn't mean scrolling to the end to save it. */}
+          <SaveBar {...saveBar} className="mt-3" />
         </CardHeader>
         <CardContent className="flex flex-col gap-5 mt-2">
           {section.fields.map((field) => (
@@ -206,36 +227,58 @@ function SiteContentEditorView({
         </CardContent>
       </Card>
 
-      {/* Sticky so the save button is never a long scroll away on the bigger pages. */}
-      <div className="sticky bottom-4 z-10 flex flex-wrap items-center gap-3 rounded-xl border border-border bg-background/95 p-3 shadow-sm backdrop-blur">
-        <Button onClick={save} disabled={pending || !dirty}>
-          <Save size={14} />
-          {pending ? "Saving..." : `Save ${section.title}`}
+      {/* Sticky so the save button is never a long scroll away on the bigger pages.
+          This one carries the live status region; the top bar repeats it silently. */}
+      <SaveBar
+        {...saveBar}
+        announce
+        className="sticky bottom-4 z-10 rounded-xl border border-border bg-background/95 p-3 shadow-sm backdrop-blur"
+      />
+    </div>
+  );
+}
+
+function SaveBar({
+  label,
+  dirty,
+  pending,
+  message,
+  isError,
+  onSave,
+  onDiscard,
+  announce = false,
+  className,
+}: {
+  label: string;
+  dirty: boolean;
+  pending: boolean;
+  message: string;
+  isError: boolean;
+  onSave: () => void;
+  onDiscard: () => void;
+  /** Only one bar may be a live region, or screen readers announce every status twice. */
+  announce?: boolean;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex flex-wrap items-center gap-3", className)}>
+      <Button onClick={onSave} disabled={pending || !dirty}>
+        <Save size={14} />
+        {pending ? "Saving..." : `Save ${label}`}
+      </Button>
+      {dirty && !pending && (
+        <Button variant="ghost" onClick={onDiscard}>
+          <RotateCcw size={14} />
+          Discard changes
         </Button>
-        {dirty && !pending && (
-          <Button variant="ghost" onClick={discard}>
-            <RotateCcw size={14} />
-            Discard changes
-          </Button>
-        )}
-        <p
-          className={cn(
-            "text-sm",
-            sectionStatus?.error ? "text-destructive" : "text-muted-foreground"
-          )}
-          role="status"
-        >
-          {sectionStatus?.error
-            ? sectionStatus.error
-            : sectionStatus
-              ? spec.liveOnSave
-                ? "Saved. It'll be on your site within a couple of minutes."
-                : "Saved. Press Publish when you're ready to put it live."
-              : dirty
-                ? "Unsaved changes"
-                : ""}
-        </p>
-      </div>
+      )}
+      <p
+        className={cn("text-sm", isError ? "text-destructive" : "text-muted-foreground")}
+        role={announce ? "status" : undefined}
+        aria-hidden={announce ? undefined : true}
+      >
+        {message}
+      </p>
     </div>
   );
 }
