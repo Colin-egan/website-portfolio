@@ -258,17 +258,20 @@ export function StudioEditor({
           {preview.state === "rejected" && (
             <p className="text-xs text-destructive">The site rejected this design: {preview.error}</p>
           )}
-          {notice?.kind === "success" && (
-            <p className="text-xs text-muted-foreground">
-              Committed to main.{" "}
-              {notice.commitUrl && (
+          {notice?.kind === "success" &&
+            (notice.commitUrl ? (
+              <p className="text-xs text-muted-foreground">
+                Committed to main.{" "}
                 <a href={notice.commitUrl} target="_blank" rel="noreferrer" className="underline">
                   View commit
-                </a>
-              )}{" "}
-              The live site updates once Vercel finishes deploying, usually within a minute or two.
-            </p>
-          )}
+                </a>{" "}
+                The live site updates once Vercel finishes deploying, usually within a minute or two.
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Saved to design.json on disk (local test mode, nothing sent to GitHub).
+              </p>
+            ))}
           {notice?.kind === "error" && (
             <div className="flex flex-col gap-2">
               <p className="text-xs text-destructive">{notice.error}</p>

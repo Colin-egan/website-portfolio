@@ -2,6 +2,8 @@
  * Sites the studio can edit. Add one line per site created from the starter
  * template (Colin-egan/eganlab-starter); the studio only ever touches repos listed here.
  */
+import { studioDevMode } from "@/lib/studio/devMode";
+
 export type StudioSite = {
   /** Used in the studio URL: /studio/<slug>. */
   slug: string;
@@ -22,5 +24,9 @@ export const STUDIO_SITES: StudioSite[] = [
 ];
 
 export function getStudioSite(slug: string): StudioSite | null {
-  return STUDIO_SITES.find((site) => site.slug === slug) ?? null;
+  const site = STUDIO_SITES.find((s) => s.slug === slug) ?? null;
+  // Local test mode can preview a site running on your machine instead.
+  const devUrl = process.env.STUDIO_DEV_SITE_URL;
+  if (site && devUrl && studioDevMode()) return { ...site, url: devUrl };
+  return site;
 }

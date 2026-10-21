@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
 import { getSession } from "@/lib/portal/session";
 import { getClientFeatures } from "@/lib/portal/client";
+import { studioDevMode } from "@/lib/studio/devMode";
 
 /**
  * Studio access is two locks, both required on every request:
@@ -40,6 +41,8 @@ export function getAllowedGitHubId(): number {
 
 /** The portal session, only if its account has the `studio` flag. */
 export async function getDeveloperSession(): Promise<{ clientId: string } | null> {
+  if (studioDevMode()) return { clientId: "studio-dev-mode" };
+
   const session = await getSession();
   if (!session) return null;
 
@@ -73,6 +76,8 @@ export type StudioSession = { clientId: string; githubLogin: string };
  * allowed GitHub user. Every studio page and action goes through this.
  */
 export async function getStudioSession(): Promise<StudioSession | null> {
+  if (studioDevMode()) return { clientId: "studio-dev-mode", githubLogin: "local-dev" };
+
   const developer = await getDeveloperSession();
   if (!developer) return null;
 

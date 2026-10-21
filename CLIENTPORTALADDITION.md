@@ -176,6 +176,25 @@ message listing each change, and Vercel deploys it. Publishing is refused if:
 The font list lives in [lib/studio/design.ts](lib/studio/design.ts) and mirrors `FONTS` in
 the template; add a font to both.
 
+**Testing locally, with no setup** ([lib/studio/devMode.ts](lib/studio/devMode.ts)): run the
+site and the portal side by side. `STUDIO_DEV_BYPASS=1` skips both sign-ins and, with
+`STUDIO_DEV_DESIGN_FILE`, Publish writes that file instead of committing to GitHub. It only
+works under `npm run dev`; a production build ignores it.
+
+```bash
+# Terminal 1, in the site's repo (e.g. starter-test):
+NEXT_PUBLIC_STUDIO_ORIGIN=http://localhost:3000 npm run dev -- -p 3001
+
+# Terminal 2, in this repo:
+STUDIO_DEV_BYPASS=1 \
+STUDIO_DEV_SITE_URL=http://localhost:3001 \
+STUDIO_DEV_DESIGN_FILE=../starter-test/design.json \
+npm run dev
+```
+
+Then open http://localhost:3000/studio. Saved changes land in the site's `design.json`
+(the site reloads with them) and show up in `git diff` there.
+
 ---
 
 ## Steps to onboard a new site

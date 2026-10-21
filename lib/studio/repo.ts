@@ -4,6 +4,10 @@
  * read/write). Server-only — the token never reaches the browser.
  */
 
+import { createHash } from "node:crypto";
+import { readFile, writeFile } from "node:fs/promises";
+import { studioDevMode } from "@/lib/studio/devMode";
+
 const API = "https://api.github.com";
 export const DESIGN_PATH = "design.json";
 export const BRANCH = "main";
@@ -27,8 +31,25 @@ function contentsUrl(repo: string) {
   return `${API}/repos/${repo}/contents/${DESIGN_PATH}`;
 }
 
+/** Local test mode: a design.json on disk stands in for the repo. */
+function localDesignFile(): string | null {
+  return studioDevMode() ? process.env.STUDIO_DEV_DESIGN_FILE || null : null;
+}
+
+const hashOf = (text: string) => createHash("sha1").update(text).digest("hex");
+
 /** design.json on main, or an error message fit to show in the studio. */
 export async function readDesignFile(repo: string): Promise<RepoFile | { error: string }> {
+  const local = localDesignFile();
+  if (local) {
+    try {
+      const text = await readFile(local, "utf8");
+      return { text, sha: hashOf(text) };
+    } catch {
+      return { error: `Can't read STUDIO_DEV_DESIGN_FILE (${local}).` };
+    }
+  }
+
   if (!process.env.STUDIO_GITHUB_TOKEN) {
     return { error: "STUDIO_GITHUB_TOKEN isn't set, so the studio can't read this repo." };
   }
@@ -60,6 +81,17 @@ export async function commitDesignFile(
   baseSha: string,
   message: string
 ): Promise<CommitResult> {
+  const local = localDesignFile();
+  if (local) {
+    // Same no-overwrite rule as GitHub: refuse if the file changed since it was read.
+    const current = await readFile(local, "utf8");
+    if (hashOf(current) !== baseSha) {
+      return { ok: false, conflict: true, error: `${DESIGN_PATH} changed on disk since you opened it. Reload, then save again.` };
+    }
+    await writeFile(local, text);
+    return { ok: true, commitUrl: "", sha: hashOf(text) };
+  }
+
   const res = await fetch(contentsUrl(repo), {
     method: "PUT",
     headers: { ...headers(), "Content-Type": "application/json" },

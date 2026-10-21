@@ -32,8 +32,10 @@ async function loadEditor(repo: string) {
 
 export default async function StudioSitePage({ params }: { params: Promise<{ site: string }> }) {
   // Same locks as /studio. Without the GitHub sign-in, /studio shows the gate.
-  if (!(await getSession())) redirect("/portal");
-  if (!(await getDeveloperSession())) notFound();
+  if (!(await getDeveloperSession())) {
+    if (!(await getSession())) redirect("/portal");
+    notFound();
+  }
   if (!(await getStudioSession())) redirect("/studio");
 
   const site = getStudioSite((await params).site);
