@@ -1,4 +1,11 @@
-export const FEATURES = ["files", "projects", "team", "crew", "new_this_week"] as const;
+export const FEATURES = [
+  "files",
+  "projects",
+  "team",
+  "crew",
+  "new_this_week",
+  "site_content",
+] as const;
 
 export type Feature = (typeof FEATURES)[number];
 
@@ -8,10 +15,18 @@ export const FEATURE_LABELS: Record<Feature, string> = {
   team: "Team",
   crew: "The Crew",
   new_this_week: "New This Week",
+  site_content: "Site Content",
 };
 
 /** Display order, independent of the order stored in the database. */
-export const TAB_ORDER: Feature[] = ["projects", "crew", "team", "new_this_week", "files"];
+export const TAB_ORDER: Feature[] = [
+  "site_content",
+  "projects",
+  "crew",
+  "team",
+  "new_this_week",
+  "files",
+];
 
 function isFeature(value: string): value is Feature {
   return (FEATURES as readonly string[]).includes(value);
