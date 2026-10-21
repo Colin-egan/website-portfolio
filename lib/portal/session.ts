@@ -36,6 +36,8 @@ export async function getSession(): Promise<{ clientId: string } | null> {
 
   try {
     const { payload } = await jwtVerify(token, getSecretKey());
+    // Studio tokens share this secret but carry an audience; never accept one here.
+    if (payload.aud !== undefined) return null;
     if (typeof payload.clientId !== "string") return null;
     return { clientId: payload.clientId };
   } catch {

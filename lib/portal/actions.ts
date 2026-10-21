@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { createSession, destroySession, getSession } from "@/lib/portal/session";
 import { sanitizeFileName } from "@/lib/portal/imageUpload";
+import { destroyStudioSession } from "@/lib/studio/session";
 
 const BUCKET = "client-files";
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
@@ -47,6 +48,7 @@ export async function loginAction(
 
 export async function logoutAction() {
   await destroySession();
+  await destroyStudioSession();
   revalidatePath("/portal");
 }
 

@@ -17,6 +17,7 @@ import type { WeeklyPic } from "@/lib/portal/weeklyActions";
 import { NewThisWeekPanel } from "@/components/portal/NewThisWeekPanel";
 import { PublishButton } from "@/components/portal/PublishButton";
 import { SiteContentPanel } from "@/components/portal/SiteContentPanel";
+import { StudioPanel } from "@/components/portal/StudioPanel";
 import type { SiteContentEditor } from "@/lib/portal/siteContentActions";
 
 type FileEntry = { name: string; size: number; updatedAt: string | null };
@@ -47,6 +48,7 @@ export function PortalTabs({ features, data }: { features: Feature[]; data: Port
     site_content: () => (
       <SiteContentPanel editor={data.siteContent} publishEnabled={data.publishEnabled} />
     ),
+    studio: () => <StudioPanel />,
   };
 
   return (
@@ -58,7 +60,9 @@ export function PortalTabs({ features, data }: { features: Feature[]; data: Port
         className="flex flex-col gap-6"
       >
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-display font-bold">Client Portal</h1>
+          <h1 className="text-2xl font-display font-bold">
+            {features.includes("studio") ? "Developer Portal" : "Client Portal"}
+          </h1>
           <div className="flex items-start gap-2">
             {data.publishEnabled && <PublishButton />}
             <form action={logoutAction}>
