@@ -72,7 +72,8 @@ function GitHubGate({ errorMessage }: { errorMessage?: string }) {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
-        {/* A plain link, not next/link: this route redirects off-site to GitHub. */}
+        {/* A plain link, not next/link: this route handler redirects off-site to GitHub. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a href="/studio/auth/github" className={buttonVariants({ className: "w-full" })}>
           <KeyRound size={14} />
           Sign in with GitHub
@@ -117,15 +118,20 @@ function StudioHome({ githubLogin }: { githubLogin: string }) {
                     <p className="text-sm truncate">{site.name}</p>
                     <p className="text-xs text-muted-foreground truncate">{site.repo}</p>
                   </div>
-                  <a
-                    href={site.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex size-8 items-center justify-center rounded-lg hover:bg-muted transition-colors shrink-0"
-                    aria-label={`Open ${site.name}`}
-                  >
-                    <ExternalLink size={15} />
-                  </a>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <a
+                      href={site.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex size-8 items-center justify-center rounded-lg hover:bg-muted transition-colors"
+                      aria-label={`Open ${site.name}`}
+                    >
+                      <ExternalLink size={15} />
+                    </a>
+                    <Link href={`/studio/${site.slug}`} className={buttonVariants({ size: "sm" })}>
+                      Edit design
+                    </Link>
+                  </div>
                 </li>
               ))}
             </ul>

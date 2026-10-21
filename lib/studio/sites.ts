@@ -3,6 +3,8 @@
  * template (Colin-egan/eganlab-starter); the studio only ever touches repos listed here.
  */
 export type StudioSite = {
+  /** Used in the studio URL: /studio/<slug>. */
+  slug: string;
   name: string;
   /** owner/repo on GitHub. */
   repo: string;
@@ -10,4 +12,15 @@ export type StudioSite = {
   url: string;
 };
 
-export const STUDIO_SITES: StudioSite[] = [];
+export const STUDIO_SITES: StudioSite[] = [
+  {
+    slug: "starter-test",
+    name: "Starter test",
+    repo: "Colin-egan/starter-test",
+    url: "https://starter-test.vercel.app",
+  },
+];
+
+export function getStudioSite(slug: string): StudioSite | null {
+  return STUDIO_SITES.find((site) => site.slug === slug) ?? null;
+}

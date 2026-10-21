@@ -150,10 +150,26 @@ requests no scopes, and its token is used once to check who you are, then thrown
    `http://localhost:3000/studio/auth/github/callback`.
 3. Find your numeric GitHub user id: `https://api.github.com/users/<username>`, field `id`.
    It's checked instead of your username because the id never changes.
-4. Set `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` and `STUDIO_GITHUB_USER_ID` (see "Env vars,
-   by repo").
+4. Create a fine-grained GitHub token (Settings → Developer settings → Fine-grained tokens):
+   repository access **only your client site repos**, permission **Contents: Read and write**.
+   The studio commits as you with it.
+5. Set `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `STUDIO_GITHUB_USER_ID` and
+   `STUDIO_GITHUB_TOKEN` (see "Env vars, by repo").
 
-Sites the studio can edit are listed in [lib/studio/sites.ts](lib/studio/sites.ts).
+**Adding a site:** create it from the template, deploy it on Vercel, give the token access
+to its repo, and add a line to [lib/studio/sites.ts](lib/studio/sites.ts) with its live URL.
+
+**Editing:** `/studio/<slug>` shows the live site in a frame beside the controls (colors,
+fonts, corner radius, section spacing, section order and visibility). Changes preview
+instantly and only for you. **Publish to GitHub** commits `design.json` to `main` with a
+message listing each change, and Vercel deploys it. Publishing is refused if:
+
+- the preview hasn't connected, or the site rejected the design — the site's own rules decide;
+- `design.json` changed on GitHub since the editor loaded (e.g. you pushed from VS Code) —
+  reload and publish again, so nothing is overwritten.
+
+The font list lives in [lib/studio/design.ts](lib/studio/design.ts) and mirrors `FONTS` in
+the template; add a font to both.
 
 ---
 
@@ -271,6 +287,7 @@ SESSION_SECRET=<random 32+ bytes>
 GITHUB_CLIENT_ID=<OAuth app client id>
 GITHUB_CLIENT_SECRET=<OAuth app client secret — server-only>
 STUDIO_GITHUB_USER_ID=<your numeric GitHub user id>
+STUDIO_GITHUB_TOKEN=<fine-grained token: site repos only, Contents read/write — server-only>
 ```
 
 **Client's site** — read-only, so the publishable key is fine (the `projects` table has a
