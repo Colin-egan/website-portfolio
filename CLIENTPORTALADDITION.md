@@ -37,6 +37,7 @@ update public.clients set features = '{files,crew,new_this_week}' where domain =
 | `team` | Team — bios, education, personal (Mission Properties) |
 | `crew` | Team panel, retail variant — shop, picks link, per-member comic picks (Memory Lane) |
 | `new_this_week` | Weekly video URL + shop pics of the week (Memory Lane) |
+| `site_content` | Spec-driven editor for (almost) every word, price and photo on the site (TideLine Living) — see below |
 
 `team` and `crew` render the same `TeamPanel` with different field sets; the flag names the
 panel *and* its variant. Unknown flags are ignored with a warning, and an empty list falls back
@@ -75,6 +76,37 @@ both columns together.
 | `client-files` bucket | **Private.** Arbitrary file drop (Files tab). Served via signed URLs. |
 | `project-media` bucket | **Public.** Project photos — must be publicly readable so they render on the client's live site. |
 | `team-media` bucket | **Public.** Team headshots, one per `team_members` row. |
+| `site_content` | One JSON document per client (`client_id` primary key, `content jsonb`) for the Site Content tab. Public read, like the other content tables. |
+| `site-media` bucket | **Public.** Photos uploaded from the Site Content tab, under `{client_id}/`. |
+
+### Site Content tab (`site_content`)
+
+For a site whose copy lives in code rather than in rows — no projects, no team — the whole
+site is one editable JSON document. The client edits it page by page in a generated form and
+presses Publish.
+
+- **The spec** ([lib/portal/siteContent/](lib/portal/siteContent/)) describes the form:
+  sections (one per page, plus Business info and Prices), and fields of kind `text`,
+  `number`, `list`, `paragraphs`, `image`, `group` and `repeat`. `sanitizeSection()` in
+  [spec.ts](lib/portal/siteContent/spec.ts) enforces it on save — unknown keys are dropped,
+  empty required fields and over-long text are rejected, and image URLs must be the site's
+  own `/…` paths or uploads in this client's `site-media` folder.
+- **Which spec a client gets** is keyed by login domain in
+  [registry.ts](lib/portal/siteContent/registry.ts). The flag turns the tab on; the registry
+  decides what's in it. A flagged client with no spec sees an empty state.
+- **The client's site** owns the matching schema and defaults. TideLine's are
+  `src/content/schema.ts` and `src/content/defaults.ts` in the tidelineliving repo, read at
+  build time by `src/content/load.ts`. Keys must agree between the two; a mismatch costs a
+  field (the site falls back to its default), not the build.
+- **Seed the row** when onboarding, so the form opens on the site's real content: export the
+  site's defaults to JSON, run them through `sanitizeSection` so they're in the exact shape a
+  save would produce, and insert one `site_content` row for the client.
+
+> **Read Supabase without `fetch` at build time.** Next persists build-time `fetch`
+> responses in `.next/cache`, and Vercel restores that cache on every build — including the
+> deploy-hook rebuild behind Publish — so a `fetch` (or supabase-js, which uses it) can
+> republish the previous build's content. TideLine's loader uses `node:https` for this
+> reason. Verified locally: two consecutive builds with `fetch` served the first build's data.
 
 ---
 
@@ -213,6 +245,8 @@ Set these in **both** `.env.local` *and* the Vercel project settings. Vercel doe
    "Key image" badge. Saves to Supabase immediately.
 3. **Publish** — triggers a rebuild of their site; changes go live in a few minutes.
 4. **Files** tab — drop arbitrary files for you (private, not shown on their site).
+5. **Site Content** tab (where enabled) — pick a page, edit, **Save**, then **Publish**.
+   Unsaved pages are marked with a dot, and leaving with unsaved changes asks first.
 
 No git, no involvement from you.
 
