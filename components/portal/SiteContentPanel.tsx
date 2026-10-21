@@ -142,12 +142,19 @@ function SiteContentEditorView({
     <div className="flex flex-col gap-6">
       <div>
         <h2 className="text-lg font-display font-bold">Site Content</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Edit the words, prices and photos on your website. Save each page as you go, then
-          press <strong className="font-medium text-foreground">Publish</strong> to put your
-          changes live — it takes a few minutes.
-        </p>
-        {!publishEnabled && (
+        {spec.liveOnSave ? (
+          <p className="text-sm text-muted-foreground mt-1">
+            Edit the words, prices and photos on your website. Each page goes live on your
+            site within a couple of minutes of saving — refresh your site to see it.
+          </p>
+        ) : (
+          <p className="text-sm text-muted-foreground mt-1">
+            Edit the words, prices and photos on your website. Save each page as you go, then
+            press <strong className="font-medium text-foreground">Publish</strong> to put your
+            changes live — it takes a few minutes.
+          </p>
+        )}
+        {!spec.liveOnSave && !publishEnabled && (
           <p className="text-sm text-muted-foreground mt-2">
             Publishing isn&apos;t connected yet. Your saved changes are kept and will go live
             once Egan Lab finishes setting it up.
@@ -221,7 +228,9 @@ function SiteContentEditorView({
           {sectionStatus?.error
             ? sectionStatus.error
             : sectionStatus
-              ? "Saved. Press Publish when you're ready to put it live."
+              ? spec.liveOnSave
+                ? "Saved. It'll be on your site within a couple of minutes."
+                : "Saved. Press Publish when you're ready to put it live."
               : dirty
                 ? "Unsaved changes"
                 : ""}

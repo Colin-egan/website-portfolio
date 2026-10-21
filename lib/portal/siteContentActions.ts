@@ -62,8 +62,9 @@ export async function getSiteContentEditor(): Promise<SiteContentEditor | null> 
 }
 
 /**
- * Saves one section. Saving doesn't change the live site — the client's site reads
- * this table at build time, so edits go live on the next Publish.
+ * Saves one section. When it reaches the live site depends on the client's site:
+ * on the next Publish for a build-time reader, or within its revalidate window for
+ * one that regenerates itself (`liveOnSave`).
  *
  * Read-modify-write on a single JSON document: fine for one editor per client, and
  * each save only replaces its own section key.
@@ -105,7 +106,8 @@ export async function saveSiteSectionAction(
 /**
  * Uploads a photo and returns its public URL for the form to hold until the section
  * is saved. The previous photo is deliberately left in storage: the live site keeps
- * pointing at it until the next Publish, and deleting it now would break that page.
+ * pointing at it until it next rebuilds or regenerates, and deleting it now would
+ * break that page.
  */
 export async function uploadSiteImageAction(formData: FormData): Promise<SiteImageState> {
   const session = await getSession();

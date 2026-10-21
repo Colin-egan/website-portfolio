@@ -102,11 +102,18 @@ presses Publish.
   site's defaults to JSON, run them through `sanitizeSection` so they're in the exact shape a
   save would produce, and insert one `site_content` row for the client.
 
-> **Read Supabase without `fetch` at build time.** Next persists build-time `fetch`
-> responses in `.next/cache`, and Vercel restores that cache on every build — including the
-> deploy-hook rebuild behind Publish — so a `fetch` (or supabase-js, which uses it) can
-> republish the previous build's content. TideLine's loader uses `node:https` for this
-> reason. Verified locally: two consecutive builds with `fetch` served the first build's data.
+- **Going live:** TideLine has no deploy hook. Its pages set `revalidate = 60`, so they
+  regenerate from Supabase in the background and a save is live within a couple of
+  minutes. The spec's `liveOnSave` flag switches the panel's wording to match. A site that
+  rebuilds on Publish instead leaves the flag off and gets a deploy hook as usual.
+- **No Vercel env vars needed:** TideLine commits its Supabase URL, publishable key and
+  client id (`src/content/portal.ts`) — none are secret — with env vars as overrides.
+
+> **Read Supabase without `fetch`.** Next persists `fetch` responses in its data cache, and
+> Vercel restores that cache on every build — including the deploy-hook rebuild behind
+> Publish — so a `fetch` (or supabase-js, which uses it) can republish the previous build's
+> content. TideLine's loader uses `node:https` for this reason. Verified locally: two
+> consecutive builds with `fetch` served the first build's data.
 
 ---
 
@@ -245,7 +252,8 @@ Set these in **both** `.env.local` *and* the Vercel project settings. Vercel doe
    "Key image" badge. Saves to Supabase immediately.
 3. **Publish** — triggers a rebuild of their site; changes go live in a few minutes.
 4. **Files** tab — drop arbitrary files for you (private, not shown on their site).
-5. **Site Content** tab (where enabled) — pick a page, edit, **Save**, then **Publish**.
+5. **Site Content** tab (where enabled) — pick a page, edit, **Save**. For TideLine that's
+   it (live within a couple of minutes); a site without `liveOnSave` also needs **Publish**.
    Unsaved pages are marked with a dot, and leaving with unsaved changes asks first.
 
 No git, no involvement from you.

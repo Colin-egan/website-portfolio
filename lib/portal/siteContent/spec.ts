@@ -52,6 +52,11 @@ export type SectionSpec = {
 export type SiteSpec = {
   /** Where root-relative image paths (the site's built-in photos) resolve for previews. */
   previewOrigin: string;
+  /**
+   * The site regenerates from Supabase on its own (ISR), so a save goes live within a
+   * couple of minutes and there is nothing to Publish. Changes the panel's wording only.
+   */
+  liveOnSave?: boolean;
   sections: SectionSpec[];
 };
 

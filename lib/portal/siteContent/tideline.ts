@@ -6,6 +6,9 @@ import type { FieldSpec, SiteSpec } from "@/lib/portal/siteContent/spec";
  *
  * Deliberately not editable: the legal disclaimer (regulatory wording), the live
  * domain, nav and footer link labels, form fields, and the illustrations.
+ *
+ * No deploy hook: the site regenerates its pages from Supabase every minute, so
+ * saves go live on their own.
  */
 
 const PRICE_TOKEN_HINT = "Write {price} where the price should appear — it's filled in from Prices.";
@@ -99,6 +102,7 @@ function serviceCard(key: string, label: string): FieldSpec {
 
 export const tidelineSpec: SiteSpec = {
   previewOrigin: "https://tidelineliving.vercel.app",
+  liveOnSave: true,
   sections: [
     {
       key: "business",
