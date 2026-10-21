@@ -17,7 +17,7 @@ export const STUDIO_SITES: StudioSite[] = [
     slug: "starter-test",
     name: "Starter test",
     repo: "Colin-egan/starter-test",
-    url: "https://starter-test.vercel.app",
+    url: "https://starter-test-kappa.vercel.app",
   },
 ];
 
