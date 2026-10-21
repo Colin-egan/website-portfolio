@@ -38,6 +38,7 @@ update public.clients set features = '{files,crew,new_this_week}' where domain =
 | `crew` | Team panel, retail variant — shop, picks link, per-member comic picks (Memory Lane) |
 | `new_this_week` | Weekly video URL + shop pics of the week (Memory Lane) |
 | `site_content` | Spec-driven editor for (almost) every word, price and photo on the site (TideLine Living) — see below |
+| `studio` | **Developer account only.** Studio button — see "Studio (developer only)" below. Never give this to a client |
 
 `team` and `crew` render the same `TeamPanel` with different field sets; the flag names the
 panel *and* its variant. Unknown flags are ignored with a warning, and an empty list falls back
@@ -114,6 +115,44 @@ presses Publish.
 > Publish — so a `fetch` (or supabase-js, which uses it) can republish the previous build's
 > content. TideLine's loader uses `node:https` for this reason. Verified locally: two
 > consecutive builds with `fetch` served the first build's data.
+
+### Studio (developer only)
+
+`/studio` is your own design editor for sites built from the starter template. It isn't a
+client feature: it's reachable only from the portal, only by the developer account, and only
+after a GitHub sign-in. Every check runs on the server
+([lib/studio/session.ts](lib/studio/session.ts)), so hiding the button isn't what keeps it closed:
+
+| Who | `/studio` |
+|---|---|
+| Not logged in | Redirects to `/portal` |
+| Any client login | 404 |
+| Developer login, no GitHub sign-in | "Sign in with GitHub" |
+| Developer login + GitHub user `STUDIO_GITHUB_USER_ID` | The studio |
+
+The GitHub sign-in sets a separate 8-hour `studio_session` cookie, tied to the developer
+portal account that started it. Logging out of the portal clears it too. The OAuth app
+requests no scopes, and its token is used once to check who you are, then thrown away.
+
+**Setup, once:**
+
+1. Create the developer account and give it only the `studio` flag:
+   ```bash
+   node --env-file=.env.local scripts/add-client.mjs <your-domain> <long-unique-password> "Egan Lab (dev)"
+   ```
+   ```sql
+   update public.clients set features = '{studio}' where domain = '<your-domain>';
+   ```
+2. Create a GitHub OAuth app (GitHub → Settings → Developer settings → OAuth Apps), with
+   callback URL `https://eganlab.com/studio/auth/github/callback`. An OAuth app has one
+   callback URL, so make a second app for local dev with
+   `http://localhost:3000/studio/auth/github/callback`.
+3. Find your numeric GitHub user id: `https://api.github.com/users/<username>`, field `id`.
+   It's checked instead of your username because the id never changes.
+4. Set `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` and `STUDIO_GITHUB_USER_ID` (see "Env vars,
+   by repo").
+
+Sites the studio can edit are listed in [lib/studio/sites.ts](lib/studio/sites.ts).
 
 ---
 
@@ -226,6 +265,11 @@ page will 500 if the *portal's* own env vars are missing too.
 SUPABASE_URL=https://vfjrqzdkctkhadcmyfpi.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=<secret — server-only, never NEXT_PUBLIC_>
 SESSION_SECRET=<random 32+ bytes>
+
+# Studio (developer only) — see "Studio (developer only)"
+GITHUB_CLIENT_ID=<OAuth app client id>
+GITHUB_CLIENT_SECRET=<OAuth app client secret — server-only>
+STUDIO_GITHUB_USER_ID=<your numeric GitHub user id>
 ```
 
 **Client's site** — read-only, so the publishable key is fine (the `projects` table has a
