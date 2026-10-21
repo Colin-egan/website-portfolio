@@ -13,16 +13,20 @@ import type { FieldSpec, SiteSpec } from "@/lib/portal/siteContent/spec";
 
 const PRICE_TOKEN_HINT = "Write {price} where the price should appear — it's filled in from Prices.";
 
-const seo: FieldSpec = {
-  kind: "group",
-  key: "seo",
-  label: "Search listing",
-  hint: "How this page appears in Google results and browser tabs.",
-  fields: [
-    { kind: "text", key: "title", label: "Page title" },
-    { kind: "text", key: "description", label: "Description", multiline: true },
-  ],
-};
+function seoFields(priceHint?: string): FieldSpec {
+  return {
+    kind: "group",
+    key: "seo",
+    label: "Search listing",
+    hint: "How this page appears in Google results and browser tabs.",
+    fields: [
+      { kind: "text", key: "title", label: "Page title" },
+      { kind: "text", key: "description", label: "Description", multiline: true, hint: priceHint },
+    ],
+  };
+}
+
+const seo = seoFields();
 
 function hero(extra: FieldSpec[] = [], bodyHint?: string): FieldSpec {
   return {
@@ -114,7 +118,13 @@ export const tidelineSpec: SiteSpec = {
         { kind: "text", key: "shortName", label: "Short name" },
         { kind: "text", key: "tagline", label: "Tagline" },
         { kind: "text", key: "phone", label: "Phone" },
-        { kind: "text", key: "email", label: "Email" },
+        {
+          kind: "text",
+          key: "email",
+          label: "Email",
+          format: "email",
+          hint: "Contact-form messages are sent here, so it has to be a real address.",
+        },
         { kind: "text", key: "serviceArea", label: "Service area", hint: "e.g. Gulf Shores & Orange Beach, AL" },
         { kind: "text", key: "hours", label: "Hours" },
         { kind: "text", key: "addressLocality", label: "City" },
@@ -124,10 +134,10 @@ export const tidelineSpec: SiteSpec = {
     {
       key: "pricing",
       title: "Prices",
-      description: "Every price on the site. Change a number here and it updates everywhere it appears.",
+      description:
+        "Every price list, table and package on the site. Change a number here and it updates everywhere it's listed. Prices written into sentences elsewhere use {price} where they can; any other figure in your own wording (like “From $25”) needs changing where you wrote it.",
       fields: [
         { kind: "number", key: "baseMonthlyMin", label: "Monthly base — from ($)" },
-        { kind: "number", key: "baseMonthlyMax", label: "Monthly base — up to ($)" },
         {
           kind: "number",
           key: "exampleBase",
@@ -212,7 +222,7 @@ export const tidelineSpec: SiteSpec = {
       key: "guestServices",
       title: "Guest Services",
       fields: [
-        seo,
+        seoFields(PRICE_TOKEN_HINT + " (monthly base)"),
         hero([], PRICE_TOKEN_HINT + " (monthly base)"),
         heading("base", "What the monthly base covers", [
           { kind: "text", key: "body", label: "Text", multiline: true },
@@ -305,7 +315,7 @@ export const tidelineSpec: SiteSpec = {
       key: "celebrations",
       title: "Coastal Celebrations",
       fields: [
-        seo,
+        seoFields(PRICE_TOKEN_HINT + " (cheapest party package)"),
         hero(),
         {
           kind: "group",

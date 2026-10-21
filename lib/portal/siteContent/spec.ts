@@ -20,6 +20,8 @@ export type FieldSpec =
       multiline?: boolean;
       /** Allows an empty value. Off by default — an empty heading looks like a bug. */
       optional?: boolean;
+      /** Extra validation for fields the site uses as more than text. */
+      format?: "email";
     })
   | (Base & {
       kind: "number";
@@ -81,13 +83,40 @@ function isObject(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
 }
 
-function cleanList(raw: unknown, maxItem: number): string[] | null {
+// One address, no spaces or angle brackets. Form submissions are emailed here, so a
+// typo would silently lose every lead; this catches the typos a person makes.
+const EMAIL = /^[^\s@<>,;]+@[^\s@<>,;]+\.[^\s@<>,;]+$/;
+
+function cleanList(raw: unknown): string[] | null {
   if (!Array.isArray(raw)) return null;
   return raw
     .filter((s): s is string => typeof s === "string")
     .map((s) => s.trim())
-    .filter(Boolean)
-    .map((s) => s.slice(0, maxItem));
+    .filter(Boolean);
+}
+
+/**
+ * Single-paragraph text boxes: the site renders them as one paragraph, so a line
+ * break would vanish there. Folding it to a space here keeps the editor honest
+ * about what the site shows. Real paragraphs use the `paragraphs` kind.
+ */
+function cleanText(raw: unknown, multiline: boolean | undefined): string {
+  const value = typeof raw === "string" ? raw.trim() : "";
+  return multiline ? value.replace(/\s*\n\s*/g, " ") : value;
+}
+
+/**
+ * "175", "$1,200", "12.50" -> number; "" -> "blank"; anything else -> null.
+ * Commas only as thousands separators, so "12,50" is rejected rather than read as 1250.
+ */
+export function parseNumber(raw: unknown): number | "blank" | null {
+  if (typeof raw === "number") return Number.isFinite(raw) ? raw : null;
+  if (typeof raw !== "string") return raw === null || raw === undefined ? "blank" : null;
+  const str = raw.trim().replace(/^\$\s*/, "");
+  if (!str) return raw.trim() ? null : "blank";
+  if (!/^(\d{1,3}(,\d{3})+|\d+)(\.\d+)?$/.test(str) && !/^\.\d+$/.test(str)) return null;
+  const n = Number(str.replace(/,/g, ""));
+  return Number.isFinite(n) ? n : null;
 }
 
 function sanitizeField(field: FieldSpec, raw: unknown, path: string[], ctx: Ctx): Result {
@@ -95,34 +124,41 @@ function sanitizeField(field: FieldSpec, raw: unknown, path: string[], ctx: Ctx)
 
   switch (field.kind) {
     case "text": {
-      const value = typeof raw === "string" ? raw.trim() : "";
+      const value = cleanText(raw, field.multiline);
       if (!value && !field.optional) return fail(here, "can't be empty.");
       const max = field.multiline ? LONG_TEXT_MAX : TEXT_MAX;
       if (value.length > max) return fail(here, `keep it under ${max} characters.`);
+      if (value && field.format === "email" && !EMAIL.test(value)) {
+        return fail(here, "enter one email address, like hello@tidelineliving.com.");
+      }
       return { ok: true, value };
     }
 
     case "number": {
-      const str = typeof raw === "number" ? String(raw) : typeof raw === "string" ? raw.trim() : "";
-      if (!str) {
+      const n = parseNumber(raw);
+      if (n === "blank") {
         return field.optional ? { ok: true, value: null } : fail(here, "enter a number.");
       }
-      const n = Number(str.replace(/[$,\s]/g, ""));
-      if (!Number.isFinite(n) || n < 0 || n > NUMBER_MAX) {
-        return fail(here, "enter a number like 175 or 12.50.");
+      if (n === null || n < 0 || n > NUMBER_MAX) {
+        return fail(here, "enter a number like 175, 1,200 or 12.50.");
       }
       return { ok: true, value: Math.round(n * 100) / 100 };
     }
 
     case "list":
     case "paragraphs": {
-      const maxItem = field.kind === "paragraphs" ? LONG_TEXT_MAX : LIST_ITEM_MAX;
-      const items = cleanList(raw, maxItem);
+      const items = cleanList(raw);
       if (!items) return fail(here, "invalid list.");
       if (items.length === 0 && !(field.kind === "list" && field.optional)) {
         return fail(here, "add at least one line.");
       }
       if (items.length > LIST_MAX_ITEMS) return fail(here, `keep it to ${LIST_MAX_ITEMS} lines.`);
+      const max = field.kind === "paragraphs" ? LONG_TEXT_MAX : LIST_ITEM_MAX;
+      const long = items.findIndex((item) => item.length > max);
+      if (long !== -1) {
+        const noun = field.kind === "paragraphs" ? "paragraph" : "line";
+        return fail(here, `${noun} ${long + 1} is too long — keep it under ${max} characters.`);
+      }
       return { ok: true, value: items };
     }
 
@@ -181,6 +217,46 @@ function sanitizeFields(fields: FieldSpec[], raw: unknown, path: string[], ctx: 
  */
 export function sanitizeSection(section: SectionSpec, raw: unknown, ctx: Ctx): Result {
   return sanitizeFields(section.fields, raw, [section.title], ctx);
+}
+
+/**
+ * The value as a save would store it, without ever failing: what the editor compares
+ * to decide whether a section has unsaved changes. "199" typed over 199, trailing
+ * spaces, or a blank last line are not changes. Unparsable numbers stay as typed, so
+ * they still count as changes and reach the validator.
+ */
+export function canonicalValue(field: FieldSpec, raw: unknown): unknown {
+  switch (field.kind) {
+    case "text":
+      return cleanText(raw, field.multiline);
+    case "number": {
+      const n = parseNumber(raw);
+      return n === "blank" ? null : n === null ? String(raw).trim() : n;
+    }
+    case "list":
+    case "paragraphs":
+      return cleanList(raw) ?? [];
+    case "image": {
+      const img = isObject(raw) ? raw : {};
+      return {
+        src: typeof img.src === "string" ? img.src.trim() : "",
+        alt: field.decorative ? "" : typeof img.alt === "string" ? img.alt.trim() : "",
+      };
+    }
+    case "group":
+      return canonicalFields(field.fields, raw);
+    case "repeat":
+      return Array.isArray(raw) ? raw.map((item) => canonicalFields(field.fields, item)) : [];
+  }
+}
+
+function canonicalFields(fields: FieldSpec[], raw: unknown): Record<string, unknown> {
+  const source = isObject(raw) ? raw : {};
+  return Object.fromEntries(fields.map((f) => [f.key, canonicalValue(f, source[f.key])]));
+}
+
+export function canonicalSection(section: SectionSpec, raw: unknown): Record<string, unknown> {
+  return canonicalFields(section.fields, raw);
 }
 
 /** A blank value for a field, used when adding a new entry to a repeat. */
