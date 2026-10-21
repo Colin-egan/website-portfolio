@@ -28,8 +28,10 @@ export default async function StudioPage({
 }) {
   // Reached only from the developer portal account: no portal login goes back to
   // the portal, and a client login gets a plain 404.
-  if (!(await getSession())) redirect("/portal");
-  if (!(await getDeveloperSession())) notFound();
+  if (!(await getDeveloperSession())) {
+    if (!(await getSession())) redirect("/portal");
+    notFound();
+  }
 
   const studio = await getStudioSession();
   const { error } = await searchParams;
