@@ -12,7 +12,8 @@ const BUCKET = "site-media";
 
 export type SiteContent = Record<string, unknown>;
 export type SiteContentEditor = { spec: SiteSpec; content: SiteContent };
-export type SiteSaveState = { error: string | null };
+/** On success, `value` is the section exactly as stored, for the editor to show. */
+export type SiteSaveState = { error: string | null; value?: unknown };
 export type SiteImageState = { error: string | null; url?: string };
 
 /**
@@ -100,7 +101,7 @@ export async function saveSiteSectionAction(
   }
 
   revalidatePath("/portal");
-  return { error: null };
+  return { error: null, value: result.value };
 }
 
 /**

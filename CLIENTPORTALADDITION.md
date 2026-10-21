@@ -89,8 +89,13 @@ presses Publish.
   sections (one per page, plus Business info and Prices), and fields of kind `text`,
   `number`, `list`, `paragraphs`, `image`, `group` and `repeat`. `sanitizeSection()` in
   [spec.ts](lib/portal/siteContent/spec.ts) enforces it on save — unknown keys are dropped,
-  empty required fields and over-long text are rejected, and image URLs must be the site's
-  own `/…` paths or uploads in this client's `site-media` folder.
+  empty required fields and over-long text are rejected (never silently cut), image URLs
+  must be the site's own `/…` paths or uploads in this client's `site-media` folder, and
+  `format: "email"` fields must hold one address. The save returns what it stored, and
+  the editor compares sections with `canonicalSection()` — the same normalisation — so
+  "199" retyped over 199 is not an unsaved change.
+- **Treat saved text as untrusted on the site.** React escapes it in markup, but anything
+  written into a `<script>` (JSON-LD) must escape `<` — TideLine's `StructuredData` does.
 - **Which spec a client gets** is keyed by login domain in
   [registry.ts](lib/portal/siteContent/registry.ts). The flag turns the tab on; the registry
   decides what's in it. A flagged client with no spec sees an empty state.
@@ -254,7 +259,9 @@ Set these in **both** `.env.local` *and* the Vercel project settings. Vercel doe
 4. **Files** tab — drop arbitrary files for you (private, not shown on their site).
 5. **Site Content** tab (where enabled) — pick a page, edit, **Save**. For TideLine that's
    it (live within a couple of minutes); a site without `liveOnSave` also needs **Publish**.
-   Unsaved pages are marked with a dot, and leaving with unsaved changes asks first.
+   Save sits at the top and bottom of each page. Unsaved pages are marked with a dot, and
+   leaving with unsaved changes asks first — closing the tab, the site nav, or Log out.
+   Switching portal tabs keeps them.
 
 No git, no involvement from you.
 

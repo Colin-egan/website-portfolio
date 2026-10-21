@@ -1,13 +1,18 @@
 "use client";
 
-import { useEffect, useId, useState, useTransition } from "react";
+import { useEffect, useId, useMemo, useRef, useState, useTransition } from "react";
 import { ArrowDown, ArrowUp, ImagePlus, Plus, RotateCcw, Save, Trash2 } from "lucide-react";
 import {
   saveSiteSectionAction,
   uploadSiteImageAction,
   type SiteContentEditor,
 } from "@/lib/portal/siteContentActions";
-import { emptyValue, type FieldSpec, type SectionSpec } from "@/lib/portal/siteContent/spec";
+import {
+  canonicalSection,
+  emptyValue,
+  type FieldSpec,
+  type SectionSpec,
+} from "@/lib/portal/siteContent/spec";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -23,6 +28,9 @@ const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
 type Values = Record<string, unknown>;
 type Path = (string | number)[];
 type SetAt = (path: Path, value: unknown) => void;
+type OnUpload = (delta: 1 | -1) => void;
+
+const LEAVE_WARNING = "You have unsaved changes to your website. Leave without saving them?";
 
 function asObject(v: unknown): Values {
   return typeof v === "object" && v !== null && !Array.isArray(v) ? (v as Values) : {};
@@ -78,28 +86,66 @@ function SiteContentEditorView({
   publishEnabled: boolean;
 }) {
   const { spec } = editor;
+  const rootRef = useRef<HTMLDivElement>(null);
+  const sectionByKey = useMemo(
+    () => Object.fromEntries(spec.sections.map((s) => [s.key, s])),
+    [spec]
+  );
+  /** What a save would store, as a string — the basis for "has this page changed?". */
+  const canon = (key: string, value: unknown) =>
+    JSON.stringify(canonicalSection(sectionByKey[key], value));
 
   // Edits to every section are kept while switching between them, so moving to
   // another page to check something never throws work away.
   const [values, setValues] = useState<Record<string, Values>>(() =>
     Object.fromEntries(spec.sections.map((s) => [s.key, initialSection(s, editor.content[s.key])]))
   );
-  const [saved, setSaved] = useState<Record<string, string>>(() =>
-    Object.fromEntries(Object.entries(values).map(([k, v]) => [k, JSON.stringify(v)]))
-  );
+  const [saved, setSaved] = useState<Record<string, Values>>(() => values);
+  const [uploads, setUploads] = useState<Record<string, number>>({});
   const [activeKey, setActiveKey] = useState(spec.sections[0]?.key ?? "");
   const [status, setStatus] = useState<{ key: string; error: string | null } | null>(null);
   const [pending, startTransition] = useTransition();
 
-  const isDirty = (key: string) => JSON.stringify(values[key]) !== saved[key];
-  const anyDirty = spec.sections.some((s) => isDirty(s.key));
+  const isDirty = (key: string) => canon(key, values[key]) !== canon(key, saved[key]);
+  const isUploading = (key: string) => (uploads[key] ?? 0) > 0;
+  const unsaved = spec.sections.some((s) => isDirty(s.key) || isUploading(s.key));
 
+  // Guard every way out of the editor while anything is unsaved: closing or
+  // reloading the tab, and in-app navigation — links and forms elsewhere on the page
+  // (the site nav, Log out), which never fire beforeunload. Capture phase, so the
+  // confirm runs before Next's Link or a form action does.
   useEffect(() => {
-    if (!anyDirty) return;
-    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
-    window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
-  }, [anyDirty]);
+    if (!unsaved) return;
+    const inEditor = (el: Element) => rootRef.current?.contains(el) ?? false;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => e.preventDefault();
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) {
+        return;
+      }
+      const link = (e.target as Element | null)?.closest?.("a[href]");
+      if (!link || inEditor(link) || link.getAttribute("target") === "_blank") return;
+      if (!window.confirm(LEAVE_WARNING)) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    const onSubmit = (e: Event) => {
+      const form = e.target as Element | null;
+      if (!form || inEditor(form)) return;
+      if (!window.confirm(LEAVE_WARNING)) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    document.addEventListener("click", onClick, true);
+    document.addEventListener("submit", onSubmit, true);
+    return () => {
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      document.removeEventListener("click", onClick, true);
+      document.removeEventListener("submit", onSubmit, true);
+    };
+  }, [unsaved]);
 
   const section = spec.sections.find((s) => s.key === activeKey) ?? spec.sections[0];
   if (!section) return null;
@@ -114,14 +160,23 @@ function SiteContentEditorView({
     }));
     setStatus((prev) => (prev?.key === sectionKey ? null : prev));
   };
+  const onUpload: OnUpload = (delta) =>
+    setUploads((prev) => ({ ...prev, [sectionKey]: Math.max(0, (prev[sectionKey] ?? 0) + delta) }));
 
   const save = () => {
     const key = section.key;
     const value = values[key];
+    const sent = canon(key, value);
     startTransition(async () => {
       try {
         const res = await saveSiteSectionAction(key, value);
-        if (!res.error) setSaved((prev) => ({ ...prev, [key]: JSON.stringify(value) }));
+        if (!res.error && res.value) {
+          const stored = asObject(res.value);
+          setSaved((prev) => ({ ...prev, [key]: stored }));
+          // Show exactly what was stored (trimmed, numbers tidied) — unless the owner
+          // kept editing while it saved; then their newer edits stay, marked unsaved.
+          setValues((prev) => (canon(key, prev[key]) === sent ? { ...prev, [key]: stored } : prev));
+        }
         setStatus({ key, error: res.error });
       } catch {
         // A dropped connection shouldn't throw away the form to the error page.
@@ -131,15 +186,41 @@ function SiteContentEditorView({
   };
 
   const discard = () => {
-    setValues((prev) => ({ ...prev, [section.key]: JSON.parse(saved[section.key]) }));
+    setValues((prev) => ({ ...prev, [section.key]: saved[section.key] }));
     setStatus(null);
   };
 
   const dirty = isDirty(section.key);
+  const uploading = isUploading(section.key);
   const sectionStatus = status?.key === section.key ? status : null;
+  // "Saved" only when it is still true: an edit or a photo that lands after the save
+  // started is unsaved, whatever the last save said.
+  const message = sectionStatus?.error
+    ? sectionStatus.error
+    : uploading
+      ? "Uploading photo..."
+      : dirty
+        ? "Unsaved changes"
+        : sectionStatus
+          ? spec.liveOnSave
+            ? "Saved. It'll be on your site within a couple of minutes."
+            : "Saved. Press Publish when you're ready to put it live."
+          : "";
+  const saveBar = {
+    label: section.title,
+    dirty,
+    saving: pending,
+    // A save mid-upload would store the old photo, and a discard would be undone when
+    // the upload lands — so both wait for it.
+    pending: pending || uploading,
+    message,
+    isError: Boolean(sectionStatus?.error),
+    onSave: save,
+    onDiscard: discard,
+  };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div ref={rootRef} className="flex flex-col gap-6">
       <div>
         <h2 className="text-lg font-display font-bold">Site Content</h2>
         {spec.liveOnSave ? (
@@ -178,7 +259,7 @@ function SiteContentEditorView({
             )}
           >
             {s.title}
-            {isDirty(s.key) && (
+            {(isDirty(s.key) || isUploading(s.key)) && (
               <span className="ml-1.5 inline-block size-1.5 rounded-full bg-purple-500 align-middle">
                 <span className="sr-only"> (unsaved changes)</span>
               </span>
@@ -191,8 +272,13 @@ function SiteContentEditorView({
         <CardHeader>
           <CardTitle className="text-base">{section.title}</CardTitle>
           {section.description && <CardDescription>{section.description}</CardDescription>}
+          {/* The same save as the sticky bar below, so a quick edit near the top of a
+              long page doesn't mean scrolling to the end to save it. */}
+          <SaveBar {...saveBar} className="mt-3" />
         </CardHeader>
-        <CardContent className="flex flex-col gap-5 mt-2">
+        {/* Keyed by section so each page's fields get their own state — an upload
+            spinner or error on one page's photo never shows on another's. */}
+        <CardContent key={section.key} className="flex flex-col gap-5 mt-2">
           {section.fields.map((field) => (
             <FieldEditor
               key={field.key}
@@ -200,42 +286,68 @@ function SiteContentEditorView({
               value={values[section.key][field.key]}
               path={[field.key]}
               setAt={setAt}
+              onUpload={onUpload}
               previewOrigin={spec.previewOrigin}
             />
           ))}
         </CardContent>
       </Card>
 
-      {/* Sticky so the save button is never a long scroll away on the bigger pages. */}
-      <div className="sticky bottom-4 z-10 flex flex-wrap items-center gap-3 rounded-xl border border-border bg-background/95 p-3 shadow-sm backdrop-blur">
-        <Button onClick={save} disabled={pending || !dirty}>
-          <Save size={14} />
-          {pending ? "Saving..." : `Save ${section.title}`}
+      {/* Sticky so the save button is never a long scroll away on the bigger pages.
+          This one carries the live status region; the top bar repeats it silently. */}
+      <SaveBar
+        {...saveBar}
+        announce
+        className="sticky bottom-4 z-10 rounded-xl border border-border bg-background/95 p-3 shadow-sm backdrop-blur"
+      />
+    </div>
+  );
+}
+
+function SaveBar({
+  label,
+  dirty,
+  saving,
+  pending,
+  message,
+  isError,
+  onSave,
+  onDiscard,
+  announce = false,
+  className,
+}: {
+  label: string;
+  dirty: boolean;
+  saving: boolean;
+  /** Saving, or something the save has to wait for (a photo upload). */
+  pending: boolean;
+  message: string;
+  isError: boolean;
+  onSave: () => void;
+  onDiscard: () => void;
+  /** Only one bar may be a live region, or screen readers announce every status twice. */
+  announce?: boolean;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex flex-wrap items-center gap-3", className)}>
+      <Button onClick={onSave} disabled={pending || !dirty}>
+        <Save size={14} />
+        {saving ? "Saving..." : `Save ${label}`}
+      </Button>
+      {dirty && !pending && (
+        <Button variant="ghost" onClick={onDiscard}>
+          <RotateCcw size={14} />
+          Discard changes
         </Button>
-        {dirty && !pending && (
-          <Button variant="ghost" onClick={discard}>
-            <RotateCcw size={14} />
-            Discard changes
-          </Button>
-        )}
-        <p
-          className={cn(
-            "text-sm",
-            sectionStatus?.error ? "text-destructive" : "text-muted-foreground"
-          )}
-          role="status"
-        >
-          {sectionStatus?.error
-            ? sectionStatus.error
-            : sectionStatus
-              ? spec.liveOnSave
-                ? "Saved. It'll be on your site within a couple of minutes."
-                : "Saved. Press Publish when you're ready to put it live."
-              : dirty
-                ? "Unsaved changes"
-                : ""}
-        </p>
-      </div>
+      )}
+      <p
+        className={cn("text-sm", isError ? "text-destructive" : "text-muted-foreground")}
+        role={announce ? "status" : undefined}
+        aria-hidden={announce ? undefined : true}
+      >
+        {message}
+      </p>
     </div>
   );
 }
@@ -244,10 +356,18 @@ type EditorProps = {
   value: unknown;
   path: Path;
   setAt: SetAt;
+  onUpload: OnUpload;
   previewOrigin: string;
 };
 
-function FieldEditor({ field, value, path, setAt, previewOrigin }: EditorProps & { field: FieldSpec }) {
+function FieldEditor({
+  field,
+  value,
+  path,
+  setAt,
+  onUpload,
+  previewOrigin,
+}: EditorProps & { field: FieldSpec }) {
   const id = useId();
   const onChange = (v: unknown) => setAt(path, v);
 
@@ -314,6 +434,7 @@ function FieldEditor({ field, value, path, setAt, previewOrigin }: EditorProps &
           value={value}
           path={path}
           setAt={setAt}
+          onUpload={onUpload}
           previewOrigin={previewOrigin}
         />
       );
@@ -331,6 +452,7 @@ function FieldEditor({ field, value, path, setAt, previewOrigin }: EditorProps &
               value={obj[f.key] ?? emptyValue(f)}
               path={[...path, f.key]}
               setAt={setAt}
+              onUpload={onUpload}
               previewOrigin={previewOrigin}
             />
           ))}
@@ -345,6 +467,7 @@ function FieldEditor({ field, value, path, setAt, previewOrigin }: EditorProps &
           value={value}
           path={path}
           setAt={setAt}
+          onUpload={onUpload}
           previewOrigin={previewOrigin}
         />
       );
@@ -376,6 +499,7 @@ function RepeatField({
   value,
   path,
   setAt,
+  onUpload,
   previewOrigin,
 }: EditorProps & { field: Extract<FieldSpec, { kind: "repeat" }> }) {
   const items = Array.isArray(value) ? value : [];
@@ -451,6 +575,7 @@ function RepeatField({
                     value={obj[f.key] ?? emptyValue(f)}
                     path={[...path, i, f.key]}
                     setAt={setAt}
+                    onUpload={onUpload}
                     previewOrigin={previewOrigin}
                   />
                 </div>
@@ -481,6 +606,7 @@ function ImageField({
   value,
   path,
   setAt,
+  onUpload,
   previewOrigin,
 }: EditorProps & { field: Extract<FieldSpec, { kind: "image" }> }) {
   const altId = useId();
@@ -499,18 +625,25 @@ function ImageField({
       return;
     }
     setError(null);
+    // Counted in the parent, not here: this field unmounts if the owner switches
+    // pages mid-upload, and that page's Save must still wait for it.
+    onUpload(1);
     startUpload(async () => {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await uploadSiteImageAction(formData).catch(() => ({
-        error: "Couldn't reach the server. Check your connection and try again.",
-        url: undefined,
-      }));
-      if (res.error || !res.url) {
-        setError(res.error ?? "Upload failed. Please try again.");
-        return;
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await uploadSiteImageAction(formData).catch(() => ({
+          error: "Couldn't reach the server. Check your connection and try again.",
+          url: undefined,
+        }));
+        if (res.error || !res.url) {
+          setError(res.error ?? "Upload failed. Please try again.");
+          return;
+        }
+        setAt([...path, "src"], res.url);
+      } finally {
+        onUpload(-1);
       }
-      setAt([...path, "src"], res.url);
     });
   };
 

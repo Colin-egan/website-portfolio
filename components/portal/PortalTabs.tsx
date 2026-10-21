@@ -87,7 +87,13 @@ export function PortalTabs({ features, data }: { features: Feature[]; data: Port
           ))}
         </div>
 
-        {panels[active]()}
+        {/* Every panel stays mounted and only the active one is shown, so switching to
+            another tab and back never throws away a panel's unsaved edits. */}
+        {features.map((f) => (
+          <div key={f} hidden={f !== active}>
+            {panels[f]()}
+          </div>
+        ))}
       </motion.div>
     </section>
   );
