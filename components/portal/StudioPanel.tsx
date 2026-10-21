@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Paintbrush } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,9 +18,9 @@ export function StudioPanel() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <a href="/studio" className={buttonVariants()}>
+        <Link href="/studio" className={buttonVariants()}>
           Open Studio
-        </a>
+        </Link>
       </CardContent>
     </Card>
   );
