@@ -1,6 +1,6 @@
 /**
  * Sites the studio can edit. Add one line per site created from the starter
- * template; the studio only ever touches repos listed here.
+ * template (Colin-egan/eganlab-starter); the studio only ever touches repos listed here.
  */
 export type StudioSite = {
   name: string;

@@ -118,7 +118,8 @@ presses Publish.
 
 ### Studio (developer only)
 
-`/studio` is your own design editor for sites built from the starter template. It isn't a
+`/studio` is your own design editor for sites built from the starter template,
+[Colin-egan/eganlab-starter](https://github.com/Colin-egan/eganlab-starter) (see its README). It isn't a
 client feature: it's reachable only from the portal, only by the developer account, and only
 after a GitHub sign-in. Every check runs on the server
 ([lib/studio/session.ts](lib/studio/session.ts)), so hiding the button isn't what keeps it closed:
