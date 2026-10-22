@@ -6,6 +6,7 @@ export const FEATURES = [
   "new_this_week",
   "site_content",
   "studio",
+  "presentation",
 ] as const;
 
 export type Feature = (typeof FEATURES)[number];
@@ -18,11 +19,13 @@ export const FEATURE_LABELS: Record<Feature, string> = {
   new_this_week: "New This Week",
   site_content: "Site Content",
   studio: "Studio",
+  presentation: "Presentation",
 };
 
 /** Display order, independent of the order stored in the database. */
 export const TAB_ORDER: Feature[] = [
   "studio",
+  "presentation",
   "site_content",
   "projects",
   "crew",

@@ -39,6 +39,7 @@ update public.clients set features = '{files,crew,new_this_week}' where domain =
 | `new_this_week` | Weekly video URL + shop pics of the week (Memory Lane) |
 | `site_content` | Spec-driven editor for (almost) every word, price and photo on the site (TideLine Living) — see below |
 | `studio` | **Developer account only.** Studio button — see "Studio (developer only)" below. Never give this to a client |
+| `presentation` | **Developer account only.** Instructions, on/off switch and reference files for the `/presentation` Gemini chatbot (`GEMINI_API_KEY`). Files live in the private `presentation-files` bucket. Never give this to a client |
 
 `team` and `crew` render the same `TeamPanel` with different field sets; the flag names the
 panel *and* its variant. Unknown flags are ignored with a warning, and an empty list falls back

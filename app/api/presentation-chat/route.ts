@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { loadPresentationParts, readPresentationSettings } from "@/lib/portal/presentation";
+import { DEFAULT_PROMPT } from "@/lib/portal/presentationShared";
 
 const MODEL = "gemini-flash-latest";
 const MAX_MESSAGES = 30;
@@ -33,28 +35,46 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
+  // Instructions, files and the on/off switch all come from the portal's
+  // Presentation tab.
+  const settings = await readPresentationSettings();
+  if (!settings.chatEnabled) {
+    return NextResponse.json({ error: "The chat is closed right now." }, { status: 503 });
+  }
+  const files = await loadPresentationParts();
+
+  // The files ride in a leading exchange, since system instructions take text only.
+  const reference =
+    files.length > 0
+      ? [
+          {
+            role: "user",
+            parts: [{ text: "Reference material for this presentation:" }, ...files],
+          },
+          { role: "model", parts: [{ text: "Got it. I'll answer using this material." }] },
+        ]
+      : [];
+
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-goog-api-key": apiKey },
       body: JSON.stringify({
-        systemInstruction: {
-          parts: [
-            {
-              text: "You are a friendly, concise assistant on the Egan Lab website (eganlab.com), answering audience questions during a live presentation by Colin Egan. Keep answers short and clear.",
-            },
-          ],
-        },
-        contents: messages.slice(-MAX_MESSAGES).map((m) => ({
-          role: m.role,
-          parts: [{ text: m.text }],
-        })),
+        systemInstruction: { parts: [{ text: settings.systemPrompt.trim() || DEFAULT_PROMPT }] },
+        contents: [
+          ...reference,
+          ...messages.slice(-MAX_MESSAGES).map((m) => ({
+            role: m.role,
+            parts: [{ text: m.text }],
+          })),
+        ],
       }),
     }
   );
 
   if (!res.ok) {
+    console.error("presentation-chat: Gemini error", res.status, await res.text());
     return NextResponse.json({ error: "The model is unavailable right now." }, { status: 502 });
   }
 

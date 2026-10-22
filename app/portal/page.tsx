@@ -8,6 +8,7 @@ import { listTeamMembers } from "@/lib/portal/teamActions";
 import { listTeamPicks } from "@/lib/portal/pickActions";
 import { listWeeklyPics, getWeeklyVideoUrl } from "@/lib/portal/weeklyActions";
 import { getSiteContentEditor } from "@/lib/portal/siteContentActions";
+import { getPresentationEditor } from "@/lib/portal/presentationActions";
 import { PortalLogin } from "@/components/portal/PortalLogin";
 import { PortalTabs, type PortalData } from "@/components/portal/PortalTabs";
 
@@ -36,7 +37,7 @@ export default async function PortalPage() {
 
   // Only load what this client's flags call for — Memory Lane never queries
   // projects, and Mission Properties never queries the weekly tables.
-  const [files, projects, team, publishEnabled, picks, weeklyPics, weeklyVideoUrl, siteContent] =
+  const [files, projects, team, publishEnabled, picks, weeklyPics, weeklyVideoUrl, siteContent, presentation] =
     await Promise.all([
       features.includes("files")
         ? supabase.storage
@@ -61,6 +62,7 @@ export default async function PortalPage() {
       features.includes("new_this_week") ? listWeeklyPics() : Promise.resolve([]),
       features.includes("new_this_week") ? getWeeklyVideoUrl() : Promise.resolve(null),
       features.includes("site_content") ? getSiteContentEditor() : Promise.resolve(null),
+      features.includes("presentation") ? getPresentationEditor() : Promise.resolve(null),
     ]);
 
   const data: PortalData = {
@@ -72,6 +74,7 @@ export default async function PortalPage() {
     weeklyPics,
     weeklyVideoUrl,
     siteContent,
+    presentation,
   };
 
   return (

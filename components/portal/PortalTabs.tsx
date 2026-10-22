@@ -19,6 +19,8 @@ import { PublishButton } from "@/components/portal/PublishButton";
 import { SiteContentPanel } from "@/components/portal/SiteContentPanel";
 import { StudioPanel } from "@/components/portal/StudioPanel";
 import type { SiteContentEditor } from "@/lib/portal/siteContentActions";
+import { PresentationPanel } from "@/components/portal/PresentationPanel";
+import type { PresentationEditor } from "@/lib/portal/presentationActions";
 
 type FileEntry = { name: string; size: number; updatedAt: string | null };
 
@@ -31,6 +33,7 @@ export type PortalData = {
   weeklyPics: WeeklyPic[];
   weeklyVideoUrl: string | null;
   siteContent: SiteContentEditor | null;
+  presentation: PresentationEditor | null;
 };
 
 export function PortalTabs({ features, data }: { features: Feature[]; data: PortalData }) {
@@ -49,6 +52,7 @@ export function PortalTabs({ features, data }: { features: Feature[]; data: Port
       <SiteContentPanel editor={data.siteContent} publishEnabled={data.publishEnabled} />
     ),
     studio: () => <StudioPanel />,
+    presentation: () => <PresentationPanel editor={data.presentation} />,
   };
 
   return (
